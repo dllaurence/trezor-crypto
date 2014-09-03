@@ -38,13 +38,19 @@ OBJS  += aescrypt.o aeskey.o aestab.o aes_modes.o
 TESTLIBS = -lcheck -lrt -lpthread -lm
 TESTSSLLIBS = -lcrypto
 
-all: tests test-openssl
+all: tests tests-embedded test-openssl
 
 %.o: %.c %.h options.h
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 tests: tests.o $(OBJS)
 	$(CC) tests.o $(OBJS) $(TESTLIBS) -o tests
+
+tests-embedded: tests-embedded.o testlib.o $(OBJS)
+	$(CC) tests-embedded.o testlib.o $(OBJS) $(TESTLIBS) -o tests-embedded
+
+tests-embedded.o : minunit.h
+testlib.o : minunit.h
 
 test-openssl: test-openssl.o $(OBJS)
 	$(CC) test-openssl.o $(OBJS) $(TESTSSLLIBS) -o test-openssl

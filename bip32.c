@@ -31,6 +31,11 @@
 #include "ripemd160.h"
 #include "base58.h"
 
+
+// Not part of the public interface
+void hdnode_serialize(const HDNode *node, uint32_t version, char use_public, char *str);
+
+
 int hdnode_from_xpub(uint32_t depth, uint32_t fingerprint, uint32_t child_num, uint8_t *chain_code, uint8_t *public_key, HDNode *out)
 {
 	curve_point c;

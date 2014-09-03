@@ -33,6 +33,12 @@
 #include "ecdsa.h"
 #include "base58.h"
 
+
+// Private interface
+int generate_k_random(bignum256 *k);
+int generate_k_rfc6979(bignum256 *secret, const uint8_t *priv_key, const uint8_t *hash);
+
+
 // Set cp2 = cp1
 void point_copy(const curve_point *cp1, curve_point *cp2)
 {
