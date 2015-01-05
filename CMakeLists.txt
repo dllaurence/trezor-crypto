@@ -12,6 +12,9 @@ endif(MSVC)
 
 add_library(TrezorCrypto STATIC ${SOURCES})
 
+# DEBUG
+include_directories(${CMAKE_SOURCE_DIR})
+
 # Build trezor-crypto tests (requires OpenSSL)
 if (TREZOR_CRYPTO_TESTS)
     add_executable(tests tests.c)

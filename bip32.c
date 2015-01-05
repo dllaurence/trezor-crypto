@@ -132,6 +132,7 @@ int hdnode_private_ckd(HDNode *inout, uint32_t i)
 	return 1;
 }
 
+#include <stdio.h>
 int hdnode_public_ckd(HDNode *inout, uint32_t i)
 {
 	uint8_t data[1 + 32 + 4];
@@ -152,6 +153,7 @@ int hdnode_public_ckd(HDNode *inout, uint32_t i)
 	inout->fingerprint = (fingerprint[0] << 24) + (fingerprint[1] << 16) + (fingerprint[2] << 8) + fingerprint[3];
 
 	memset(inout->private_key, 0, 32);
+printf("calling ecdsa_read_pubkey()\n");
 	if (!ecdsa_read_pubkey(inout->public_key, &a)) {
 		return 0;
 	}
