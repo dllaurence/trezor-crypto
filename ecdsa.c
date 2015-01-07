@@ -537,8 +537,10 @@ printf("results equal, success\n");
 	point_multiply(&order256k1, pub, &temp);
 
 	if (!point_is_infinity(&temp)) {
+printf("point is infinity, returning 0\n");
 		return 0;
 	}
+printf("everything succeeded, returning 1\n");
 
 	return 1;
 }
