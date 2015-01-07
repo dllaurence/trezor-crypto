@@ -475,14 +475,12 @@ int ecdsa_read_pubkey(const uint8_t *pub_key, curve_point *pub)
 	if (pub_key[0] == 0x02 || pub_key[0] == 0x03) { // compute missing y coords
 		bn_read_be(pub_key + 1, &(pub->x));
 		uncompress_coords(pub_key[0], &(pub->x), &(pub->y));
-printf("calling ecdsa_validate_pubkey()\n");
 #if USE_PUBKEY_VALIDATE
 		return ecdsa_validate_pubkey(pub);
 #else
 		return 1;
 #endif
 	}
-printf("point c\n");
 	// error
 	return 0;
 }
@@ -494,9 +492,11 @@ printf("point c\n");
 //   - n*pub is the point at infinity.
 
 #include <stdio.h>
-#include "../gem_hsm/log.h"
+#include "testutil.h"
 int ecdsa_validate_pubkey(const curve_point *pub)
 {
+printf("\n\n*******************************************\n");
+printf("In ecdsa_validate_pubkey()\n\n");
 	bignum256 y_2, x_3_b;
 	curve_point temp;
 
@@ -509,31 +509,36 @@ int ecdsa_validate_pubkey(const curve_point *pub)
 	}
 
 	memcpy(&y_2, &(pub->y), sizeof(bignum256));
-gem_log_hex_more(gem_log_notify, NULL, gem_ByteRef_set_c((uint8_t*) &pub->y, sizeof(bignum256)), NULL);
+printf("initial values\n");
+printf("pub->y: %s\n", tohex((uint8_t*) &pub->y, sizeof(bignum256)));
 	memcpy(&x_3_b, &(pub->x), sizeof(bignum256));
+printf("pub->x: %s\n\n", tohex((uint8_t*) &pub->x, sizeof(bignum256)));
 
 	// y^2
 	bn_multiply(&(pub->y), &y_2, &prime256k1);
+printf("y*2 (before mod): %s\n", tohex((uint8_t*) &y_2, sizeof(bignum256)));
 	bn_mod(&y_2, &prime256k1);
+printf("y^2 (mod): %s\n\n", tohex((uint8_t*) &y_2, sizeof(bignum256)));
 
 	// x^3 + b
 	bn_multiply(&(pub->x), &x_3_b, &prime256k1);
+printf("x^2: %s\n", tohex((uint8_t*) &x_3_b, sizeof(bignum256)));
 	bn_multiply(&(pub->x), &x_3_b, &prime256k1);
+printf("x^3: %s\n", tohex((uint8_t*) &x_3_b, sizeof(bignum256)));
 	bn_addmodi(&x_3_b, 7, &prime256k1);
+printf("x^3 (mod): %s\n", tohex((uint8_t*) &x_3_b, sizeof(bignum256)));
 
-printf("calling bn_is_equal()\n");
 	if (!bn_is_equal(&x_3_b, &y_2)) {
+printf("results not equal, aborting\n");
 		return 0;
 	}
+printf("results equal, success\n");
 
-printf("point 10\n");
 	point_multiply(&order256k1, pub, &temp);
 
-printf("point 11\n");
 	if (!point_is_infinity(&temp)) {
 		return 0;
 	}
-printf("point 12\n");
 
 	return 1;
 }

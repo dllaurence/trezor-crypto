@@ -38,8 +38,10 @@
 #include "options.h"
 
 #include "testlib.h"
+#include "testutil.h"
 
 
+#if 0
 // Not part of the public interface
 uint8_t *fromhex(const char *str);
 char *tohex(const uint8_t *bin, size_t l);
@@ -74,6 +76,7 @@ char *tohex(const uint8_t *bin, size_t l)
 	buf[l * 2] = 0;
 	return buf;
 }
+#endif
 
 #define _ck_assert_mem(X, Y, L, OP) do { \
   const void* _ck_x = (X); \

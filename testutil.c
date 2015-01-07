@@ -1,6 +1,3 @@
-#ifndef _TESTLIB_H
-#define _TESTLIB_H
-
 /**
  * Copyright (c) 2013-2014 Tomas Dzetkulic
  * Copyright (c) 2013-2014 Pavol Rusnak
@@ -25,49 +22,38 @@
  */
 
 
-#include "minunit.h"
+#include <string.h>
+
+#include "testutil.h"
 
 
-// test vector 1 from https://en.bitcoin.it/wiki/BIP_0032_TestVectors
-const char *test_bip32_vector_1(void);
+uint8_t *fromhex(const char *str)
+{
+	static uint8_t buf[128];
+	uint8_t c;
+	size_t i;
+	for (i = 0; i < strlen(str) / 2; i++) {
+		c = 0;
+		if (str[i*2] >= '0' && str[i*2] <= '9') c += (str[i*2] - '0') << 4;
+		if (str[i*2] >= 'a' && str[i*2] <= 'f') c += (10 + str[i*2] - 'a') << 4;
+		if (str[i*2] >= 'A' && str[i*2] <= 'F') c += (10 + str[i*2] - 'A') << 4;
+		if (str[i*2+1] >= '0' && str[i*2+1] <= '9') c += (str[i*2+1] - '0');
+		if (str[i*2+1] >= 'a' && str[i*2+1] <= 'f') c += (10 + str[i*2+1] - 'a');
+		if (str[i*2+1] >= 'A' && str[i*2+1] <= 'F') c += (10 + str[i*2+1] - 'A');
+		buf[i] = c;
+	}
+	return buf;
+}
 
-// test vector 2 from https://en.bitcoin.it/wiki/BIP_0032_TestVectors
-const char *test_bip32_vector_2(void);
-
-const char *test_bip32_compare(void);
-
-const char *test_rfc6979(void);
-
-const char *test_sign_speed(void);
-
-const char *test_verify_speed(void);
-
-// test vectors from http://www.inconteam.com/software-development/41-encryption/55-aes-test-vectors
-// Uses OpenSSL, which isn't available.
-//const char *test_aes(void);
-
-// test vectors from http://stackoverflow.com/questions/15593184/pbkdf2-hmac-sha-512-test-vectors
-const char *test_pbkdf2(void);
-
-const char *test_mnemonic(void);
-
-const char *test_mnemonic_check(void);
-
-const char *test_address(void);
-
-const char *test_pubkey_validity(void);
-
-const char *test_wif(void);
-
-const char *test_address_decode(void);
-
-const char *test_ecdsa_der(void);
-
-
-// Null-terminated array of test functions for convenience
-extern minunit_test_function test_suite[];
-
-// run suite
-const char *run_suite(void);
-
-#endif
+char *tohex(const uint8_t *bin, size_t l)
+{
+	char *buf = (char *)malloc(l * 2 + 1);
+	static char digits[] = "0123456789abcdef";
+	size_t i;
+	for (i = 0; i < l; i++) {
+		buf[i*2  ] = digits[(bin[i] >> 4) & 0xF];
+		buf[i*2+1] = digits[bin[i] & 0xF];
+	}
+	buf[l * 2] = 0;
+	return buf;
+}

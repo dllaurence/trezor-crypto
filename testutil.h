@@ -1,5 +1,5 @@
-#ifndef _TESTLIB_H
-#define _TESTLIB_H
+#ifndef _TESTUTIL_H
+#define _TESTUTIL_H
 
 /**
  * Copyright (c) 2013-2014 Tomas Dzetkulic
@@ -25,49 +25,12 @@
  */
 
 
-#include "minunit.h"
+#include <stdint.h>
+#include <stddef.h>
 
 
-// test vector 1 from https://en.bitcoin.it/wiki/BIP_0032_TestVectors
-const char *test_bip32_vector_1(void);
-
-// test vector 2 from https://en.bitcoin.it/wiki/BIP_0032_TestVectors
-const char *test_bip32_vector_2(void);
-
-const char *test_bip32_compare(void);
-
-const char *test_rfc6979(void);
-
-const char *test_sign_speed(void);
-
-const char *test_verify_speed(void);
-
-// test vectors from http://www.inconteam.com/software-development/41-encryption/55-aes-test-vectors
-// Uses OpenSSL, which isn't available.
-//const char *test_aes(void);
-
-// test vectors from http://stackoverflow.com/questions/15593184/pbkdf2-hmac-sha-512-test-vectors
-const char *test_pbkdf2(void);
-
-const char *test_mnemonic(void);
-
-const char *test_mnemonic_check(void);
-
-const char *test_address(void);
-
-const char *test_pubkey_validity(void);
-
-const char *test_wif(void);
-
-const char *test_address_decode(void);
-
-const char *test_ecdsa_der(void);
-
-
-// Null-terminated array of test functions for convenience
-extern minunit_test_function test_suite[];
-
-// run suite
-const char *run_suite(void);
+// DEBUG: using these for debugging
+uint8_t *fromhex(const char *str);
+char *tohex(const uint8_t *bin, size_t l);
 
 #endif
