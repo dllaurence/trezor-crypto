@@ -209,6 +209,8 @@ void scalar_multiply(const bignum256 *k, curve_point *res)
 #undef USE_PRECOMPUTED_CP
 
 gem_log(gem_log_notify, "Entered scalar_multiply\n");
+gem_log_more(gem_log_notify, "    k:\n");
+gem_log_bignum256_more(gem_log_notify, "    ", k);
 #if USE_PRECOMPUTED_CP
 gem_log(gem_log_notify, "Using precomputed CPs\n");
 #else
@@ -233,6 +235,11 @@ gem_log(gem_log_notify, "NOT using precomputed CPs\n");
 				}
 #else
 				memcpy(res, &curr, sizeof(curve_point));
+if (i < 10) {
+gem_log_more(gem_log_notify, "    i: %d\n", i);
+gem_log_more(gem_log_notify, "        res:\n");
+gem_log_curve_point_more(gem_log_notify, "        ", res);
+}
 #endif
 				is_zero = 0;
 			} else {
@@ -245,6 +252,11 @@ gem_log(gem_log_notify, "NOT using precomputed CPs\n");
 				}
 #else
 				point_add(&curr, res);
+if (i < 10) {
+gem_log_more(gem_log_notify, "    i: %d\n", i);
+gem_log_more(gem_log_notify, "        res:\n");
+gem_log_curve_point_more(gem_log_notify, "        ", res);
+}
 #endif
 			}
 		}
@@ -252,6 +264,7 @@ gem_log(gem_log_notify, "NOT using precomputed CPs\n");
 		point_double(&curr);
 #endif
 	}
+gem_log(gem_log_notify, "scalar_multiply exiting\n");
 }
 
 // generate random K for signing
