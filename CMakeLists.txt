@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES aescrypt.c aeskey.c aes_modes.c aestab.c base58.c bignum.c bip32.c bip39.c ecdsa.c hmac.c pbkdf2.c rand.c ripemd160.c secp256k1.c sha2.c testlib.c testutil.c)
 
+# DEBUGPPC
+include_directories(${CMAKE_SOURCE_DIR})
+
 # disable sequence point warnings where they are expected
 set_source_files_properties(aeskey.c PROPERTIES
                             COMPILE_FLAGS -Wno-sequence-point)
