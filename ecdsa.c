@@ -207,6 +207,7 @@ void scalar_multiply(const bignum256 *k, curve_point *res)
 {
 // DEBUGPPC
 #undef USE_PRECOMPUTED_CP
+const int print_max = 2;
 
 gem_log(gem_log_notify, "Entered scalar_multiply\n");
 gem_log_more(gem_log_notify, "    k:\n");
@@ -224,7 +225,7 @@ gem_log(gem_log_notify, "NOT using precomputed CPs\n");
 	// initial res
 	memcpy(&curr, &G256k1, sizeof(curve_point));
 	for (i = 0; i < 256; i++) {
-if (i < 5) {
+if (i < print_max) {
 gem_log_more(gem_log_notify, "i: %d\n", i);
 gem_log_more(gem_log_notify, "    curr:\n");
 gem_log_curve_point_more(gem_log_notify, "        ", &curr);
@@ -240,7 +241,7 @@ gem_log_curve_point_more(gem_log_notify, "        ", &curr);
 				}
 #else
 				memcpy(res, &curr, sizeof(curve_point));
-if (i < 5) {
+if (i < print_max) {
 gem_log_more(gem_log_notify, "    res:\n");
 gem_log_curve_point_more(gem_log_notify, "        ", res);
 }
@@ -256,7 +257,7 @@ gem_log_curve_point_more(gem_log_notify, "        ", res);
 				}
 #else
 				point_add(&curr, res);
-if (i < 5) {
+if (i < print_max) {
 gem_log_more(gem_log_notify, "    res:\n");
 gem_log_curve_point_more(gem_log_notify, "        ", res);
 }
@@ -264,7 +265,15 @@ gem_log_curve_point_more(gem_log_notify, "        ", res);
 			}
 		}
 #if ! USE_PRECOMPUTED_CP
+if (i < print_max) {
+gem_log_more(gem_log_notify, "    curr before doubling:\n");
+gem_log_curve_point_more(gem_log_notify, "        ", &curr);
+}
 		point_double(&curr);
+if (i < print_max) {
+gem_log_more(gem_log_notify, "    curr after doubling:\n");
+gem_log_curve_point_more(gem_log_notify, "        ", &curr);
+}
 #endif
 	}
 gem_log(gem_log_notify, "scalar_multiply exiting\n");
