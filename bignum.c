@@ -47,7 +47,13 @@ gem_ByteRef data_ref = GEM_BYTEREF(data, 4);
 gem_log_hex_more(gem_log_notify, "            data: ", data_ref, "\n");
 }
 
-return read_be(data);
+uint32_t ret = read_be(data);
+
+if (debug) {
+gem_log_more(gem_log_notify, "            returning: %u", ret);
+}
+
+return ret;
 }
 
 inline void write_be(uint8_t *data, uint32_t x)
