@@ -29,11 +29,21 @@
 // DEBUGPPC
 #include "gem_hsm/log.h"
 
-inline uint32_t read_be(const uint8_t *data)
+// DEBUGPPC
+inline uint32_t read_be_debug(const uint8_t *data, int debug);
+inline uint32_t read_be_debug(const uint8_t *data, int debug)
 {
-gem_log(gem_log_notify, "        Entered read_be\n");
+if (debug) {
+gem_log(gem_log_notify, "        Entered read_be_debug\n");
 gem_ByteRef data_ref = GEM_BYTEREF(data, 4);
 gem_log_hex_more(gem_log_notify, "            data: ", data_ref, "\n");
+}
+
+return read_be(data);
+}
+
+inline uint32_t read_be(const uint8_t *data)
+{
 	return (((uint32_t)data[0]) << 24) |
 	       (((uint32_t)data[1]) << 16) |
 	       (((uint32_t)data[2]) << 8)  |
@@ -57,7 +67,7 @@ gem_log(gem_log_notify, "    Entered bn_read_be\n");
 gem_ByteRef in_ref = GEM_BYTEREF(in_number, 8);
 gem_log_hex_more(gem_log_notify, "    in_number: ", in_ref, "\n");
 	for (i = 0; i < 8; i++) {
-		temp += (((uint64_t)read_be(in_number + (7 - i) * 4)) << (2 * i));
+		temp += (((uint64_t)read_be_debug(in_number + (7 - i) * 4, i == 0)) << (2 * i));
 gem_log_more(gem_log_notify, "    i = %d\n", i);
 gem_log_more(gem_log_notify, "        temp = %lu\n", temp);
 		out_number->val[i]= temp & 0x3FFFFFFF;
