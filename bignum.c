@@ -31,6 +31,9 @@
 
 inline uint32_t read_be(const uint8_t *data)
 {
+gem_log(gem_log_notify, "        Entered read_be\n");
+gem_ByteRef data_ref = GEM_BYTEREF(data, 4);
+gem_log_hex_more(gem_log_notify, "            data: ", data_ref, "\n");
 	return (((uint32_t)data[0]) << 24) |
 	       (((uint32_t)data[1]) << 16) |
 	       (((uint32_t)data[2]) << 8)  |
@@ -50,7 +53,9 @@ void bn_read_be(const uint8_t *in_number, bignum256 *out_number)
 	int i;
 	uint64_t temp = 0;
 // DEBUGPPC
-gem_log(gem_log_notify, "Entered bn_read_be\n");
+gem_log(gem_log_notify, "    Entered bn_read_be\n");
+gem_ByteRef in_ref = GEM_BYTEREF(in_number, 8);
+gem_log_hex_more(gem_log_notify, "    in_number: ", in_ref, "\n");
 	for (i = 0; i < 8; i++) {
 		temp += (((uint64_t)read_be(in_number + (7 - i) * 4)) << (2 * i));
 gem_log_more(gem_log_notify, "    i = %d\n", i);
