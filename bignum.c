@@ -61,17 +61,18 @@ gem_log_more(gem_log_notify, "    i = %d\n", i);
 		//uint64_t temp3 = ((uint64_t) temp2);
 		//temp += temp3;
 		temp += (((uint64_t)(read_be(in_number + (7 - i) * 4))) << (2 * i));
+gem_log_more(gem_log_notify, "        temp = %08llx\n", temp);
 		out_number->val[i]= temp & 0x3FFFFFFF;
-gem_log_more(gem_log_notify, "        outnumber = %lx\n", out_number->val[i]);
+gem_log_more(gem_log_notify, "        outnumber = %08x\n", out_number->val[i]);
 		temp >>= 30;
-gem_log_more(gem_log_notify, "        temp after shift = %lu\n", temp);
+gem_log_more(gem_log_notify, "        temp after shift = %08llx\n", temp);
 	}
-gem_log_more(gem_log_notify, "        <loop finished, final values>\n");
-gem_log_more(gem_log_notify, "        temp       = %lx\n", temp);
 	out_number->val[8] = temp;
 gem_log_more(gem_log_notify, "    i = 8\n");
-gem_log_more(gem_log_notify, "        outnumber[8] = %x\n", out_number->val[8]);
-gem_log_bignum256_more(gem_log_notify, "    ", out_number);
+gem_log_more(gem_log_notify, "        temp = %08llx\n", temp);
+gem_log_more(gem_log_notify, "        outnumber[8] = %08x\n", out_number->val[8]);
+gem_log_more(gem_log_notify, "    Final values:\n");
+gem_log_bignum256_more(gem_log_notify, "        ", out_number);
 }
 
 void bn_write_be(const bignum256 *in_number, uint8_t *out_number)
