@@ -21,6 +21,8 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#ifndef __TESTLIB_H__
+#define __TESTLIB_H__
 
 #include "minunit.h"
 
@@ -66,3 +68,5 @@ extern minunit_test_function test_suite[];
 
 // run suite
 const char *run_suite(void);
+
+#endif

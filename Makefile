@@ -46,8 +46,8 @@ all: tests tests-embedded test-openssl
 tests: tests.o $(OBJS)
 	$(CC) tests.o $(OBJS) $(TESTLIBS) -o tests
 
-tests-embedded: tests-embedded.o testlib.o $(OBJS)
-	$(CC) tests-embedded.o testlib.o $(OBJS) $(TESTLIBS) -o tests-embedded
+tests-embedded: tests-embedded.o testlib.o testutil.o $(OBJS)
+	$(CC) tests-embedded.o testlib.o testutil.o $(OBJS) $(TESTLIBS) -o tests-embedded
 
 tests-embedded.o : minunit.h
 testlib.o : minunit.h
