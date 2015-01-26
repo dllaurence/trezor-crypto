@@ -103,7 +103,9 @@ gem_log_more(gem_log_notify, "        UINT32_MAX = %u\n", UINT32_MAX);
 gem_log_more(gem_log_notify, "        UINT64_MAX = %u\n", UINT64_MAX);
 	out_number->val[8] = temp;
 gem_log_more(gem_log_notify, "    i = 8\n");
-gem_log_more(gem_log_notify, "        outnumber  = %u\n", out_number->val[8]);
+gem_log_more(gem_log_notify, "        outnumber[8] = %u\n", out_number->val[8]);
+gem_ByteRef out_ref = GEM_BYTEREF(out_number->val, 9*sizeof(uint32_t));
+gem_log_hex_more(gem_log_notify, "            out_number: ", out_ref, "\n");
 }
 
 void bn_write_be(const bignum256 *in_number, uint8_t *out_number)
