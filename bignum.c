@@ -29,6 +29,14 @@
 // DEBUGPPC
 #include "gem_hsm/log.h"
 
+inline uint32_t read_be(const uint8_t *data)
+{
+	return (((uint32_t)data[0]) << 24) |
+	       (((uint32_t)data[1]) << 16) |
+	       (((uint32_t)data[2]) << 8)  |
+	       (((uint32_t)data[3]));
+}
+
 // DEBUGPPC
 inline uint32_t read_be_debug(const uint8_t *data, int debug);
 inline uint32_t read_be_debug(const uint8_t *data, int debug)
@@ -40,14 +48,6 @@ gem_log_hex_more(gem_log_notify, "            data: ", data_ref, "\n");
 }
 
 return read_be(data);
-}
-
-inline uint32_t read_be(const uint8_t *data)
-{
-	return (((uint32_t)data[0]) << 24) |
-	       (((uint32_t)data[1]) << 16) |
-	       (((uint32_t)data[2]) << 8)  |
-	       (((uint32_t)data[3]));
 }
 
 inline void write_be(uint8_t *data, uint32_t x)
