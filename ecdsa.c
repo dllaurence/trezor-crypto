@@ -206,6 +206,7 @@ int point_is_negative_of(const curve_point *p, const curve_point *q)
 void scalar_multiply(const bignum256 *k, curve_point *res)
 {
 // DEBUGPPC
+#undef USE_PRECOMPUTED_CP
 
 gem_log(gem_log_notify, "Entered scalar_multiply\n");
 #if USE_PRECOMPUTED_CP
