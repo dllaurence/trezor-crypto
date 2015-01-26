@@ -70,7 +70,11 @@ void bn_read_be(const uint8_t *in_number, bignum256 *out_number)
 	uint64_t temp = 0;
 // DEBUGPPC
 gem_log(gem_log_notify, "    Entered bn_read_be\n");
-gem_log_more(gem_log_notify, "        sizeof(uint64_t): %llu\n", sizeof(uint64_t));
+gem_log_more(gem_log_notify, "        sizeof(uint64_t): %u\n", sizeof(uint64_t));
+gem_log_more(gem_log_notify, "        sizeof(uint32_t): %u\n", sizeof(uint32_t));
+gem_log_more(gem_log_notify, "        sizeof(unsigned): %u\n", sizeof(unsigned));
+gem_log_more(gem_log_notify, "        sizeof(long unsigned): %u\n", sizeof(long unsigned));
+gem_log_more(gem_log_notify, "        sizeof(long long unsigned): %u\n", sizeof(long long unsigned));
 gem_ByteRef in_ref = GEM_BYTEREF(in_number, 8);
 gem_log_hex_more(gem_log_notify, "    in_number: ", in_ref, "\n");
 	for (i = 0; i < 8; i++) {
@@ -90,9 +94,16 @@ gem_log_more(gem_log_notify, "        outnumber = %lu\n", out_number->val[i]);
 		temp >>= 30;
 gem_log_more(gem_log_notify, "        temp = %llu\n\n", temp);
 	}
+gem_log_more(gem_log_notify, "        <loop finished, final values>\n");
+gem_log_more(gem_log_notify, "        temp       = %llu\n", temp);
+gem_log_more(gem_log_notify, "        UINT_MAX   = %u\n", UINT_MAX);
+gem_log_more(gem_log_notify, "        ULONG_MAX  = %u\n", ULONG_MAX);
+gem_log_more(gem_log_notify, "        ULLONG_MAX = %u\n", ULLONG_MAX);
+gem_log_more(gem_log_notify, "        UINT32_MAX = %u\n", UINT32_MAX);
+gem_log_more(gem_log_notify, "        UINT64_MAX = %u\n", UINT64_MAX);
 	out_number->val[8] = temp;
 gem_log_more(gem_log_notify, "    i = 8\n");
-gem_log_more(gem_log_notify, "        outnumber = %llu\n", out_number->val[8]);
+gem_log_more(gem_log_notify, "        outnumber  = %u\n", out_number->val[8]);
 }
 
 void bn_write_be(const bignum256 *in_number, uint8_t *out_number)
