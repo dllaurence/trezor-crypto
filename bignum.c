@@ -50,7 +50,7 @@ gem_log_hex_more(gem_log_notify, "            data: ", data_ref, "\n");
 uint32_t ret = read_be(data);
 
 if (debug) {
-gem_log_more(gem_log_notify, "            returning: %u", ret);
+gem_log_more(gem_log_notify, "            returning: %u\n\n", ret);
 }
 
 return ret;
@@ -73,7 +73,8 @@ gem_log(gem_log_notify, "    Entered bn_read_be\n");
 gem_ByteRef in_ref = GEM_BYTEREF(in_number, 8);
 gem_log_hex_more(gem_log_notify, "    in_number: ", in_ref, "\n");
 	for (i = 0; i < 8; i++) {
-		temp += (((uint64_t)read_be_debug(in_number + (7 - i) * 4, i == 0)) << (2 * i));
+		uint32_t temp2 = (((uint64_t)read_be_debug(in_number + (7 - i) * 4, i == 0)) << (2 * i));
+		temp += ((uint64_t) temp2);
 gem_log_more(gem_log_notify, "    i = %d\n", i);
 gem_log_more(gem_log_notify, "        temp = %lu\n", temp);
 		out_number->val[i]= temp & 0x3FFFFFFF;
