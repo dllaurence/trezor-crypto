@@ -56,15 +56,27 @@ gem_ByteRef in_ref = GEM_BYTEREF(in_number, 8);
 gem_log_hex_more(gem_log_notify, "    in_number: ", in_ref, "\n");
 
 	for (i = 0; i < 8; i++) {
-gem_log_more(gem_log_notify, "    i = %d\n", i);
-		//uint32_t temp2 = ((read_be(in_number + (7 - i) * 4)) << (2 * i));
-		//uint64_t temp3 = ((uint64_t) temp2);
-		//temp += temp3;
-		temp += (((uint64_t)(read_be(in_number + (7 - i) * 4))) << (2 * i));
-gem_log_more(gem_log_notify, "        temp = %08llx\n", temp);
+
+                gem_log_more(gem_log_notify, "    i = %d\n", i);
+
+                gem_log_more(gem_log_notify, "        temp before addition: %08llx\n", temp);
+
+		//temp += (((uint64_t)(read_be(in_number + (7 - i) * 4))) << (2 * i));
+		uint32_t r = read_be(in_number + (7 - i) * 4);
+
+                gem_log_more(gem_log_notify, "        r: %08x\n", r);
+
+		temp += (((uint64_t)(r)) << (2 * i));
+
+                gem_log_more(gem_log_notify, "        temp after addition: %08llx\n", temp);
+
 		out_number->val[i]= temp & 0x3FFFFFFF;
-gem_log_more(gem_log_notify, "        outnumber = %08x\n", out_number->val[i]);
+
+                gem_log_more(gem_log_notify, "        outnumber = %08x\n",
+                        out_number->val[i]);
+
 		temp >>= 30;
+
 gem_log_more(gem_log_notify, "        temp after shift = %08llx\n", temp);
 	}
 	out_number->val[8] = temp;
