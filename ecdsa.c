@@ -399,17 +399,17 @@ void ecdsa_get_public_key33(const uint8_t *priv_key, uint8_t *pub_key)
 gem_log(gem_log_notify, "Entered ecdsa_get_public_key33\n");
 	bn_read_be(priv_key, &k);
 gem_ByteRef k_ref = GEM_BYTEREF(k.val, 9*sizeof(uint32_t));
-gem_log_hex_more(gem_log_notify, "    k: ", k_ref, "\n");
+gem_log_hex_more(gem_log_notify, "k: ", k_ref, "\n");
 	// compute k*G
 	scalar_multiply(&k, &R);
 gem_ByteRef R_x = GEM_BYTEREF(&R.x, 9*sizeof(uint32_t));
 gem_ByteRef R_y = GEM_BYTEREF(&R.y, 9*sizeof(uint32_t));
-gem_log_hex_more(gem_log_notify, "    R.x: ", R_x, "\n");
-gem_log_hex_more(gem_log_notify, "    R.y: ", R_y, "\n");
+gem_log_hex_more(gem_log_notify, "R.x: ", R_x, "\n");
+gem_log_hex_more(gem_log_notify, "R.y: ", R_y, "\n");
 	pub_key[0] = 0x02 | (R.y.val[0] & 0x01);
 	bn_write_be(&R.x, pub_key + 1);
 gem_ByteRef pub_ref = GEM_BYTEREF(pub_key, GEM_PUBLIC_KEY_LEN);
-gem_log_hex_more(gem_log_notify, "    pub_key: ", pub_ref, "\n");
+gem_log_hex_more(gem_log_notify, "pub_key: ", pub_ref, "\n");
 }
 
 void ecdsa_get_public_key65(const uint8_t *priv_key, uint8_t *pub_key)

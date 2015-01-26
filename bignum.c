@@ -26,6 +26,9 @@
 #include "bignum.h"
 #include "secp256k1.h"
 
+// DEBUGPPC
+#include "gem_hsm/log.h"
+
 inline uint32_t read_be(const uint8_t *data)
 {
 	return (((uint32_t)data[0]) << 24) |
@@ -46,12 +49,20 @@ void bn_read_be(const uint8_t *in_number, bignum256 *out_number)
 {
 	int i;
 	uint64_t temp = 0;
+// DEBUGPPC
+gem_log(gem_log_notify, "Entered bn_read_be\n");
 	for (i = 0; i < 8; i++) {
 		temp += (((uint64_t)read_be(in_number + (7 - i) * 4)) << (2 * i));
+gem_log_more(gem_log_notify, "    i = %d\n", i);
+gem_log_more(gem_log_notify, "        temp = %lu\n", temp);
 		out_number->val[i]= temp & 0x3FFFFFFF;
+gem_log_more(gem_log_notify, "        outnumber = %lu\n", out_number->val[i]);
 		temp >>= 30;
+gem_log_more(gem_log_notify, "        temp = %lu\n\n", temp);
 	}
 	out_number->val[8] = temp;
+gem_log_more(gem_log_notify, "    i = 8\n");
+gem_log_more(gem_log_notify, "        outnumber = %lu\n", out_number->val[8]);
 }
 
 void bn_write_be(const bignum256 *in_number, uint8_t *out_number)
