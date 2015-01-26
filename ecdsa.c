@@ -104,6 +104,16 @@ void point_double(curve_point *cp)
 	int i;
 	uint32_t temp;
 	bignum256 lambda, inverse_y, xr, yr;
+// DEBUGPPC
+static unsigned ctr = 0;
+++ctr;
+const unsigned ctr_max = 5;
+if (ctr <= ctr_max) {
+gem_log(gem_log_notify, "Entered point_double\n");
+gem_log_more(gem_log_notify, "    ctr: %d\n", ctr - 1);
+gem_log_more(gem_log_notify, "    cp passed in:\n");
+gem_log_curve_point_more(gem_log_notify, "        ", cp);
+}
 
 	if (point_is_infinity(cp)) {
 		return;
@@ -138,6 +148,11 @@ void point_double(curve_point *cp)
 	memcpy(&(cp->y), &yr, sizeof(bignum256));
 	bn_mod(&(cp->x), &prime256k1);
 	bn_mod(&(cp->y), &prime256k1);
+
+if (ctr <= ctr_max) {
+gem_log_more(gem_log_notify, "    cp returned:\n");
+gem_log_curve_point_more(gem_log_notify, "        ", cp);
+}
 }
 
 // res = k * p
@@ -207,7 +222,7 @@ void scalar_multiply(const bignum256 *k, curve_point *res)
 {
 // DEBUGPPC
 #undef USE_PRECOMPUTED_CP
-const int print_max = 2;
+const int print_max = 1;
 
 gem_log(gem_log_notify, "Entered scalar_multiply\n");
 gem_log_more(gem_log_notify, "    k:\n");
@@ -227,8 +242,8 @@ gem_log(gem_log_notify, "NOT using precomputed CPs\n");
 	for (i = 0; i < 256; i++) {
 if (i < print_max) {
 gem_log_more(gem_log_notify, "i: %d\n", i);
-gem_log_more(gem_log_notify, "    curr:\n");
-gem_log_curve_point_more(gem_log_notify, "        ", &curr);
+//gem_log_more(gem_log_notify, "    curr:\n");
+//gem_log_curve_point_more(gem_log_notify, "        ", &curr);
 }
 		if (k->val[i / 30] & (1u << (i % 30))) {
 			if (is_zero) {
@@ -242,8 +257,8 @@ gem_log_curve_point_more(gem_log_notify, "        ", &curr);
 #else
 				memcpy(res, &curr, sizeof(curve_point));
 if (i < print_max) {
-gem_log_more(gem_log_notify, "    res:\n");
-gem_log_curve_point_more(gem_log_notify, "        ", res);
+//gem_log_more(gem_log_notify, "    res:\n");
+//gem_log_curve_point_more(gem_log_notify, "        ", res);
 }
 #endif
 				is_zero = 0;
@@ -258,8 +273,8 @@ gem_log_curve_point_more(gem_log_notify, "        ", res);
 #else
 				point_add(&curr, res);
 if (i < print_max) {
-gem_log_more(gem_log_notify, "    res:\n");
-gem_log_curve_point_more(gem_log_notify, "        ", res);
+//gem_log_more(gem_log_notify, "    res:\n");
+//gem_log_curve_point_more(gem_log_notify, "        ", res);
 }
 #endif
 			}
