@@ -205,6 +205,15 @@ int point_is_negative_of(const curve_point *p, const curve_point *q)
 // res = k * G
 void scalar_multiply(const bignum256 *k, curve_point *res)
 {
+// DEBUGPPC
+
+gem_log(gem_log_notify, "Entered scalar_multiply\n");
+#if USE_PRECOMPUTED_CP
+gem_log(gem_log_notify, "Using precomputed CPs\n");
+#else
+gem_log(gem_log_notify, "NOT using precomputed CPs\n");
+#endif
+
 	int i;
 	// result is zero
 	int is_zero = 1;
@@ -402,10 +411,8 @@ gem_log_more(gem_log_notify, "k:\n");
 gem_log_bignum256_more(gem_log_notify, "    ", &k);
 	// compute k*G
 	scalar_multiply(&k, &R);
-gem_log_more(gem_log_notify, "R.x:\n");
-gem_log_bignum256_more(gem_log_notify, "    ", &R.x);
-gem_log_more(gem_log_notify, "R.y:\n");
-gem_log_bignum256_more(gem_log_notify, "    ", &R.y);
+gem_log_more(gem_log_notify, "R:\n");
+gem_log_curve_point_more(gem_log_notify, "    ", &R);
 	pub_key[0] = 0x02 | (R.y.val[0] & 0x01);
 	bn_write_be(&R.x, pub_key + 1);
 gem_ByteRef pub_ref = GEM_BYTEREF(pub_key, GEM_PUBLIC_KEY_LEN);
