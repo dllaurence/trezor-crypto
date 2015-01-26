@@ -70,25 +70,29 @@ void bn_read_be(const uint8_t *in_number, bignum256 *out_number)
 	uint64_t temp = 0;
 // DEBUGPPC
 gem_log(gem_log_notify, "    Entered bn_read_be\n");
+gem_log_more(gem_log_notify, "        sizeof(uint64_t): %llu\n", sizeof(uint64_t));
 gem_ByteRef in_ref = GEM_BYTEREF(in_number, 8);
 gem_log_hex_more(gem_log_notify, "    in_number: ", in_ref, "\n");
 	for (i = 0; i < 8; i++) {
 gem_log_more(gem_log_notify, "    i = %d\n", i);
 		uint32_t temp2 = ((read_be_debug(in_number + (7 - i) * 4, i == 0)) << (2 * i));
 gem_log_more(gem_log_notify, "        temp2 = %u\n", temp2);
-		//uint64_t temp3 = ((uint64_t) temp2);
-		uint64_t temp3 = temp2;
-gem_log_more(gem_log_notify, "        temp3 = %lu\n", temp3);
+		uint64_t temp3 = ((uint64_t) temp2);
+gem_log_more(gem_log_notify, "        temp3 = %llu\n", temp3);
+		uint64_t temp5 = temp2;
+gem_log_more(gem_log_notify, "        temp5 = %llu\n", temp5);
+		unsigned long long temp6 = temp2;
+gem_log_more(gem_log_notify, "        temp6 = %llu\n", temp6);
 		temp += temp3;
-gem_log_more(gem_log_notify, "        temp = %lu\n", temp);
+gem_log_more(gem_log_notify, "        temp = %llu\n", temp);
 		out_number->val[i]= temp & 0x3FFFFFFF;
 gem_log_more(gem_log_notify, "        outnumber = %lu\n", out_number->val[i]);
 		temp >>= 30;
-gem_log_more(gem_log_notify, "        temp = %lu\n\n", temp);
+gem_log_more(gem_log_notify, "        temp = %llu\n\n", temp);
 	}
 	out_number->val[8] = temp;
 gem_log_more(gem_log_notify, "    i = 8\n");
-gem_log_more(gem_log_notify, "        outnumber = %lu\n", out_number->val[8]);
+gem_log_more(gem_log_notify, "        outnumber = %llu\n", out_number->val[8]);
 }
 
 void bn_write_be(const bignum256 *in_number, uint8_t *out_number)
