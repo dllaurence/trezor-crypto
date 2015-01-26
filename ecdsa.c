@@ -224,6 +224,11 @@ gem_log(gem_log_notify, "NOT using precomputed CPs\n");
 	// initial res
 	memcpy(&curr, &G256k1, sizeof(curve_point));
 	for (i = 0; i < 256; i++) {
+if (i < 5) {
+gem_log_more(gem_log_notify, "i: %d\n", i);
+gem_log_more(gem_log_notify, "    curr:\n");
+gem_log_curve_point_more(gem_log_notify, "        ", &curr);
+}
 		if (k->val[i / 30] & (1u << (i % 30))) {
 			if (is_zero) {
 #if USE_PRECOMPUTED_CP
@@ -235,9 +240,8 @@ gem_log(gem_log_notify, "NOT using precomputed CPs\n");
 				}
 #else
 				memcpy(res, &curr, sizeof(curve_point));
-if (i < 10) {
-gem_log_more(gem_log_notify, "    i: %d\n", i);
-gem_log_more(gem_log_notify, "        res:\n");
+if (i < 5) {
+gem_log_more(gem_log_notify, "    res:\n");
 gem_log_curve_point_more(gem_log_notify, "        ", res);
 }
 #endif
@@ -252,9 +256,8 @@ gem_log_curve_point_more(gem_log_notify, "        ", res);
 				}
 #else
 				point_add(&curr, res);
-if (i < 10) {
-gem_log_more(gem_log_notify, "    i: %d\n", i);
-gem_log_more(gem_log_notify, "        res:\n");
+if (i < 5) {
+gem_log_more(gem_log_notify, "    res:\n");
 gem_log_curve_point_more(gem_log_notify, "        ", res);
 }
 #endif
