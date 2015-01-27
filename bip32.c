@@ -73,12 +73,17 @@ int hdnode_from_xprv(uint32_t depth, uint32_t fingerprint, uint32_t child_num, u
 
 int hdnode_from_seed(uint8_t *seed, int seed_len, HDNode *out)
 {
+// DEBUGPPC
+gem_log(gem_log_notify, "Entered hdnode_from_seed\n");
+gem_log_hex_more(gem_log_notify, "Seed passed in: ", GEM_BYTEREF(seed, seed_len), "\n");
+
 	uint8_t I[32 + 32];
 	memset(out, 0, sizeof(HDNode));
 	out->depth = 0;
 	out->fingerprint = 0x00000000;
 	out->child_num = 0;
 	hmac_sha512((uint8_t *)"Bitcoin seed", 12, seed, seed_len, I);
+gem_log_hex_more(gem_log_notify, "hash: ", GEM_BYTEREF(I, 64), "\n");
 	memcpy(out->private_key, I, 32);
 	bignum256 a;
 	bn_read_be(out->private_key, &a);
