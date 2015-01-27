@@ -79,6 +79,7 @@ gem_log_more(gem_log_notify, "     temp af: %016llx\n", temp);
 		out_number->val[i]= temp & 0x3FFFFFFF;
 gem_log_more(gem_log_notify, "  out_number: %016x\n", out_number->val[i]);
 gem_log_more(gem_log_notify, "sizeof(temp): %u\n", sizeof(temp));
+gem_log_more(gem_log_notify, "  UINT64_MAX: %llx\n", UINT64_MAX);
 gem_log_more(gem_log_notify, "          >>: %016llx\n", temp >> 30);
 		temp >>= 30;
 gem_log_more(gem_log_notify, "    temp shf: %016llx\n", temp);
