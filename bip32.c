@@ -32,6 +32,10 @@
 #include "base58.h"
 
 
+// DEBUGPPC
+#include "gem_hsm/log.h"
+
+
 // Not part of the public interface
 void hdnode_serialize(const HDNode *node, uint32_t version, char use_public, char *str);
 
@@ -140,7 +144,13 @@ int hdnode_public_ckd(HDNode *inout, uint32_t i)
 	curve_point a, b;
 	bignum256 c;
 
+// DEBUGPPC
+gem_log(gem_log_notify, "Entered hdnode_public_ckd\n");
+gem_log_more(gem_log_notify, "Node passed in:\n");
+gem_log_WalletNode_more(gem_log_notify, inout);
 	if (i & 0x80000000) { // private derivation
+gem_log_more(gem_log_notify, "    Cannot publicly derive from a hardened "
+        "node, aborting\n");
 		return 0;
 	} else { // public derivation
 		memcpy(data, inout->public_key, 33);
@@ -153,6 +163,7 @@ int hdnode_public_ckd(HDNode *inout, uint32_t i)
 
 	memset(inout->private_key, 0, 32);
 	if (!ecdsa_read_pubkey(inout->public_key, &a)) {
+gem_log_more(gem_log_notify, "    read_pubkey failed, aborting\n");
 		return 0;
 	}
 
@@ -161,6 +172,7 @@ int hdnode_public_ckd(HDNode *inout, uint32_t i)
 	bn_read_be(I, &c);
 
 	if (!bn_is_less(&c, &order256k1)) { // >= order
+gem_log_more(gem_log_notify, "    >= order, failing\n");
 		return 0;
 	}
 
@@ -169,6 +181,7 @@ int hdnode_public_ckd(HDNode *inout, uint32_t i)
 
 #if USE_PUBKEY_VALIDATE
 	if (!ecdsa_validate_pubkey(&b)) {
+gem_log_more(gem_log_notify, "    pubkey did not validate, aborting\n");
 		return 0;
 	}
 #endif
@@ -178,6 +191,11 @@ int hdnode_public_ckd(HDNode *inout, uint32_t i)
 
 	inout->depth++;
 	inout->child_num = i;
+
+// DEBUGPPC
+gem_log(gem_log_notify, "Exiting hdnode_public_ckd\n");
+gem_log_more(gem_log_notify, "Returning node:\n");
+gem_log_WalletNode_more(gem_log_notify, inout);
 
 	return 1;
 }
