@@ -318,15 +318,6 @@ void bn_sqrt(bignum256 *x, const bignum256 *prime)
 // in field G_prime, small but slow
 void bn_inverse(bignum256 *x, const bignum256 *prime)
 {
-// DEBUGPPC
-static unsigned ctr = 0;
-const unsigned ctr_max = 5;
-++ctr;
-if (ctr <= ctr_max) {
-gem_log(gem_log_notify, "bn_inverse called\n");
-gem_log_more(gem_log_notify, "    x passed in:\n");
-gem_log_bignum256_more(gem_log_notify, "    ", x);
-}
 	uint32_t i, j, limb;
 	bignum256 res;
 	bn_zero(&res); res.val[0] = 1;
@@ -343,15 +334,8 @@ gem_log_bignum256_more(gem_log_notify, "    ", x);
 			bn_multiply(x, x, prime);
 		}
 	}
-if (ctr <= ctr_max) {
-gem_log_more(gem_log_notify, "    res:\n");
-gem_log_bignum256_more(gem_log_notify, "    ", &res);
-}
 	bn_mod(&res, prime);
 	memcpy(x, &res, sizeof(bignum256));
-if (ctr <= ctr_max) {
-gem_log(gem_log_notify, "bn_inverse finished\n");
-}
 }
 
 #else
