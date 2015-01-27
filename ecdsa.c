@@ -399,8 +399,8 @@ gem_log_hex_more(gem_log_notify, "priv key passed in:", GEM_BYTEREF(priv_key, GE
 
 	bn_read_be(priv_key, &k);
 	// compute k*G
-	scalar_multiply(&k, &R);
 gem_log_more(gem_log_notify, "k in to scalar_multiply: \n");
+	scalar_multiply(&k, &R);
 gem_log_bignum256_more(gem_log_notify, "    ", &k);
 gem_log_more(gem_log_notify, "R out of scalar multiply: \n");
 gem_log_curve_point_more(gem_log_notify, "    ", &R);
