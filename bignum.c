@@ -310,7 +310,7 @@ void bn_sqrt(bignum256 *x, const bignum256 *prime)
 }
 
 // DEBUGPPC
-//#undef USE_INVERSE_FAST
+#undef USE_INVERSE_FAST
 #undef USE_PRECOMPUTED_IV
 
 #if ! USE_INVERSE_FAST
