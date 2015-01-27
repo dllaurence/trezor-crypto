@@ -205,19 +205,6 @@ int point_is_negative_of(const curve_point *p, const curve_point *q)
 // res = k * G
 void scalar_multiply(const bignum256 *k, curve_point *res)
 {
-// DEBUGPPC
-//#undef USE_PRECOMPUTED_CP
-const int print_max = 1;
-
-gem_log(gem_log_notify, "Entered scalar_multiply\n");
-gem_log_more(gem_log_notify, "    k:\n");
-gem_log_bignum256_more(gem_log_notify, "    ", k);
-#if USE_PRECOMPUTED_CP
-gem_log(gem_log_notify, "Using precomputed CPs\n");
-#else
-gem_log(gem_log_notify, "NOT using precomputed CPs\n");
-#endif
-
 	int i;
 	// result is zero
 	int is_zero = 1;
@@ -225,11 +212,6 @@ gem_log(gem_log_notify, "NOT using precomputed CPs\n");
 	// initial res
 	memcpy(&curr, &G256k1, sizeof(curve_point));
 	for (i = 0; i < 256; i++) {
-if (i < print_max) {
-gem_log_more(gem_log_notify, "i: %d\n", i);
-gem_log_more(gem_log_notify, "    curr:\n");
-gem_log_curve_point_more(gem_log_notify, "        ", &curr);
-}
 		if (k->val[i / 30] & (1u << (i % 30))) {
 			if (is_zero) {
 #if USE_PRECOMPUTED_CP
@@ -241,10 +223,6 @@ gem_log_curve_point_more(gem_log_notify, "        ", &curr);
 				}
 #else
 				memcpy(res, &curr, sizeof(curve_point));
-if (i < print_max) {
-gem_log_more(gem_log_notify, "    res:\n");
-gem_log_curve_point_more(gem_log_notify, "        ", res);
-}
 #endif
 				is_zero = 0;
 			} else {
@@ -257,26 +235,13 @@ gem_log_curve_point_more(gem_log_notify, "        ", res);
 				}
 #else
 				point_add(&curr, res);
-if (i < print_max) {
-gem_log_more(gem_log_notify, "    res:\n");
-gem_log_curve_point_more(gem_log_notify, "        ", res);
-}
 #endif
 			}
 		}
 #if ! USE_PRECOMPUTED_CP
-if (i < print_max) {
-gem_log_more(gem_log_notify, "    curr before doubling:\n");
-gem_log_curve_point_more(gem_log_notify, "        ", &curr);
-}
 		point_double(&curr);
-if (i < print_max) {
-gem_log_more(gem_log_notify, "    curr after doubling:\n");
-gem_log_curve_point_more(gem_log_notify, "        ", &curr);
-}
 #endif
 	}
-gem_log(gem_log_notify, "scalar_multiply exiting\n");
 }
 
 // generate random K for signing
@@ -431,7 +396,7 @@ void ecdsa_get_public_key33(const uint8_t *priv_key, uint8_t *pub_key)
 	bignum256 k;
 
 // DEBUGPPC
-//gem_log(gem_log_notify, "Entered ecdsa_get_public_key33\n");
+gem_log(gem_log_notify, "Entered ecdsa_get_public_key33\n");
 	bn_read_be(priv_key, &k);
 gem_log_more(gem_log_notify, "k:\n");
 gem_log_bignum256_more(gem_log_notify, "    ", &k);
