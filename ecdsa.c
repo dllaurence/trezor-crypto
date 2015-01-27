@@ -398,8 +398,8 @@ void ecdsa_get_public_key33(const uint8_t *priv_key, uint8_t *pub_key)
 	bn_read_be(priv_key, &k);
 	// compute k*G
 	scalar_multiply(&k, &R);
-  pub_key[0] = 0x02 | (R.y.val[0] & 0x01);
-  bn_write_be(&R.x, pub_key + 1);
+	pub_key[0] = 0x02 | (R.y.val[0] & 0x01);
+	bn_write_be(&R.x, pub_key + 1);
 }
 
 void ecdsa_get_public_key65(const uint8_t *priv_key, uint8_t *pub_key)
