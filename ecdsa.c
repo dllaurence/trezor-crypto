@@ -468,16 +468,16 @@ void ecdsa_get_public_key33(const uint8_t *priv_key, uint8_t *pub_key)
 // DEBUGPPC
 //gem_log(gem_log_notify, "Entered ecdsa_get_public_key33\n");
 	bn_read_be(priv_key, &k);
-//gem_log_more(gem_log_notify, "k:\n");
-//gem_log_bignum256_more(gem_log_notify, "    ", &k);
+gem_log_more(gem_log_notify, "k:\n");
+gem_log_bignum256_more(gem_log_notify, "    ", &k);
 	// compute k*G
 	scalar_multiply(&k, &R);
-//gem_log_more(gem_log_notify, "R:\n");
-//gem_log_curve_point_more(gem_log_notify, "    ", &R);
+gem_log_more(gem_log_notify, "R:\n");
+gem_log_curve_point_more(gem_log_notify, "    ", &R);
 	pub_key[0] = 0x02 | (R.y.val[0] & 0x01);
 	bn_write_be(&R.x, pub_key + 1);
-//gem_ByteRef pub_ref = GEM_BYTEREF(pub_key, GEM_PUBLIC_KEY_LEN);
-//gem_log_hex_more(gem_log_notify, "pub_key: ", pub_ref, "\n");
+gem_ByteRef pub_ref = GEM_BYTEREF(pub_key, GEM_PUBLIC_KEY_LEN);
+gem_log_hex_more(gem_log_notify, "pub_key: ", pub_ref, "\n");
 }
 
 void ecdsa_get_public_key65(const uint8_t *priv_key, uint8_t *pub_key)
