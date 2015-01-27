@@ -104,16 +104,6 @@ void point_double(curve_point *cp)
 	int i;
 	uint32_t temp;
 	bignum256 lambda, inverse_y, xr, yr;
-// DEBUGPPC
-static unsigned ctr = 0;
-++ctr;
-const unsigned ctr_max = 1;
-if (ctr <= ctr_max) {
-gem_log(gem_log_notify, "Entered point_double\n");
-gem_log_more(gem_log_notify, "    ctr: %d\n", ctr - 1);
-gem_log_more(gem_log_notify, "    cp passed in:\n");
-gem_log_curve_point_more(gem_log_notify, "        ", cp);
-}
 
 	if (point_is_infinity(cp)) {
 		return;
@@ -124,33 +114,13 @@ gem_log_curve_point_more(gem_log_notify, "        ", cp);
 	}
 
 	memcpy(&inverse_y, &(cp->y), sizeof(bignum256));
-if (ctr <= ctr_max) {
-gem_log_more(gem_log_notify, "    y:\n");
-gem_log_bignum256_more(gem_log_notify, "        ", &inverse_y);
-}
 	bn_inverse(&inverse_y, &prime256k1);
-if (ctr <= ctr_max) {
-gem_log_more(gem_log_notify, "    inverse_y:\n");
-gem_log_bignum256_more(gem_log_notify, "        ", &inverse_y);
-}
 	memcpy(&lambda, &three_over_two256k1, sizeof(bignum256));
 	bn_multiply(&inverse_y, &lambda, &prime256k1);
-if (ctr <= ctr_max) {
-gem_log_more(gem_log_notify, "    lambda 1:\n");
-gem_log_bignum256_more(gem_log_notify, "        ", &lambda);
-}
 	bn_multiply(&(cp->x), &lambda, &prime256k1);
 	bn_multiply(&(cp->x), &lambda, &prime256k1);
-if (ctr <= ctr_max) {
-gem_log_more(gem_log_notify, "    lambda 2:\n");
-gem_log_bignum256_more(gem_log_notify, "        ", &lambda);
-}
 	memcpy(&xr, &lambda, sizeof(bignum256));
 	bn_multiply(&xr, &xr, &prime256k1);
-if (ctr <= ctr_max) {
-gem_log_more(gem_log_notify, "    xr:\n");
-gem_log_bignum256_more(gem_log_notify, "        ", &xr);
-}
 	temp = 0;
 	for (i = 0; i < 9; i++) {
 		temp += xr.val[i] + 3u * prime256k1.val[i] - 2u * cp->x.val[i];
@@ -168,11 +138,6 @@ gem_log_bignum256_more(gem_log_notify, "        ", &xr);
 	memcpy(&(cp->y), &yr, sizeof(bignum256));
 	bn_mod(&(cp->x), &prime256k1);
 	bn_mod(&(cp->y), &prime256k1);
-
-if (ctr <= ctr_max) {
-gem_log_more(gem_log_notify, "    cp returned:\n");
-gem_log_curve_point_more(gem_log_notify, "        ", cp);
-}
 }
 
 // res = k * p
@@ -244,13 +209,13 @@ void scalar_multiply(const bignum256 *k, curve_point *res)
 #undef USE_PRECOMPUTED_CP
 const int print_max = 1;
 
-//gem_log(gem_log_notify, "Entered scalar_multiply\n");
-//gem_log_more(gem_log_notify, "    k:\n");
-//gem_log_bignum256_more(gem_log_notify, "    ", k);
+gem_log(gem_log_notify, "Entered scalar_multiply\n");
+gem_log_more(gem_log_notify, "    k:\n");
+gem_log_bignum256_more(gem_log_notify, "    ", k);
 #if USE_PRECOMPUTED_CP
-//gem_log(gem_log_notify, "Using precomputed CPs\n");
-#else
-//gem_log(gem_log_notify, "NOT using precomputed CPs\n");
+gem_log(gem_log_notify, "Using precomputed CPs\n");
+lse
+gem_log(gem_log_notify, "NOT using precomputed CPs\n");
 #endif
 
 	int i;
@@ -261,9 +226,9 @@ const int print_max = 1;
 	memcpy(&curr, &G256k1, sizeof(curve_point));
 	for (i = 0; i < 256; i++) {
 if (i < print_max) {
-//gem_log_more(gem_log_notify, "i: %d\n", i);
-//gem_log_more(gem_log_notify, "    curr:\n");
-//gem_log_curve_point_more(gem_log_notify, "        ", &curr);
+gem_log_more(gem_log_notify, "i: %d\n", i);
+gem_log_more(gem_log_notify, "    curr:\n");
+gem_log_curve_point_more(gem_log_notify, "        ", &curr);
 }
 		if (k->val[i / 30] & (1u << (i % 30))) {
 			if (is_zero) {
@@ -277,8 +242,8 @@ if (i < print_max) {
 #else
 				memcpy(res, &curr, sizeof(curve_point));
 if (i < print_max) {
-//gem_log_more(gem_log_notify, "    res:\n");
-//gem_log_curve_point_more(gem_log_notify, "        ", res);
+gem_log_more(gem_log_notify, "    res:\n");
+gem_log_curve_point_more(gem_log_notify, "        ", res);
 }
 #endif
 				is_zero = 0;
@@ -293,25 +258,25 @@ if (i < print_max) {
 #else
 				point_add(&curr, res);
 if (i < print_max) {
-//gem_log_more(gem_log_notify, "    res:\n");
-//gem_log_curve_point_more(gem_log_notify, "        ", res);
+gem_log_more(gem_log_notify, "    res:\n");
+gem_log_curve_point_more(gem_log_notify, "        ", res);
 }
 #endif
 			}
 		}
 #if ! USE_PRECOMPUTED_CP
-//if (i < print_max) {
-//gem_log_more(gem_log_notify, "    curr before doubling:\n");
-//gem_log_curve_point_more(gem_log_notify, "        ", &curr);
-//}
+if (i < print_max) {
+gem_log_more(gem_log_notify, "    curr before doubling:\n");
+gem_log_curve_point_more(gem_log_notify, "        ", &curr);
+}
 		point_double(&curr);
-//if (i < print_max) {
-//gem_log_more(gem_log_notify, "    curr after doubling:\n");
-//gem_log_curve_point_more(gem_log_notify, "        ", &curr);
-//}
+if (i < print_max) {
+gem_log_more(gem_log_notify, "    curr after doubling:\n");
+gem_log_curve_point_more(gem_log_notify, "        ", &curr);
+}
 #endif
 	}
-//gem_log(gem_log_notify, "scalar_multiply exiting\n");
+gem_log(gem_log_notify, "scalar_multiply exiting\n");
 }
 
 // generate random K for signing
