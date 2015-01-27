@@ -111,8 +111,8 @@ const unsigned ctr_max = 1;
 if (ctr <= ctr_max) {
 gem_log(gem_log_notify, "Entered point_double\n");
 gem_log_more(gem_log_notify, "    ctr: %d\n", ctr - 1);
-gem_log_more(gem_log_notify, "    cp passed in:\n");
-gem_log_curve_point_more(gem_log_notify, "        ", cp);
+//gem_log_more(gem_log_notify, "    cp passed in:\n");
+//gem_log_curve_point_more(gem_log_notify, "        ", cp);
 }
 
 	if (point_is_infinity(cp)) {
@@ -124,6 +124,10 @@ gem_log_curve_point_more(gem_log_notify, "        ", cp);
 	}
 
 	memcpy(&inverse_y, &(cp->y), sizeof(bignum256));
+if (ctr <= ctr_max) {
+gem_log_more(gem_log_notify, "    y:\n");
+gem_log_bignum256_more(gem_log_notify, "        ", &inverse_y);
+}
 	bn_inverse(&inverse_y, &prime256k1);
 if (ctr <= ctr_max) {
 gem_log_more(gem_log_notify, "    inverse_y:\n");
@@ -131,22 +135,22 @@ gem_log_bignum256_more(gem_log_notify, "        ", &inverse_y);
 }
 	memcpy(&lambda, &three_over_two256k1, sizeof(bignum256));
 	bn_multiply(&inverse_y, &lambda, &prime256k1);
-if (ctr <= ctr_max) {
-gem_log_more(gem_log_notify, "    lambda 1:\n");
-gem_log_bignum256_more(gem_log_notify, "        ", &lambda);
-}
+//if (ctr <= ctr_max) {
+//gem_log_more(gem_log_notify, "    lambda 1:\n");
+//gem_log_bignum256_more(gem_log_notify, "        ", &lambda);
+//}
 	bn_multiply(&(cp->x), &lambda, &prime256k1);
 	bn_multiply(&(cp->x), &lambda, &prime256k1);
-if (ctr <= ctr_max) {
-gem_log_more(gem_log_notify, "    lambda 2:\n");
-gem_log_bignum256_more(gem_log_notify, "        ", &lambda);
-}
+//if (ctr <= ctr_max) {
+//gem_log_more(gem_log_notify, "    lambda 2:\n");
+//gem_log_bignum256_more(gem_log_notify, "        ", &lambda);
+//}
 	memcpy(&xr, &lambda, sizeof(bignum256));
 	bn_multiply(&xr, &xr, &prime256k1);
-if (ctr <= ctr_max) {
-gem_log_more(gem_log_notify, "    xr:\n");
-gem_log_bignum256_more(gem_log_notify, "        ", &xr);
-}
+//if (ctr <= ctr_max) {
+//gem_log_more(gem_log_notify, "    xr:\n");
+//gem_log_bignum256_more(gem_log_notify, "        ", &xr);
+//}
 	temp = 0;
 	for (i = 0; i < 9; i++) {
 		temp += xr.val[i] + 3u * prime256k1.val[i] - 2u * cp->x.val[i];
@@ -165,10 +169,10 @@ gem_log_bignum256_more(gem_log_notify, "        ", &xr);
 	bn_mod(&(cp->x), &prime256k1);
 	bn_mod(&(cp->y), &prime256k1);
 
-if (ctr <= ctr_max) {
-gem_log_more(gem_log_notify, "    cp returned:\n");
-gem_log_curve_point_more(gem_log_notify, "        ", cp);
-}
+//if (ctr <= ctr_max) {
+//gem_log_more(gem_log_notify, "    cp returned:\n");
+//gem_log_curve_point_more(gem_log_notify, "        ", cp);
+//}
 }
 
 // res = k * p
@@ -462,18 +466,18 @@ void ecdsa_get_public_key33(const uint8_t *priv_key, uint8_t *pub_key)
 	bignum256 k;
 
 // DEBUGPPC
-gem_log(gem_log_notify, "Entered ecdsa_get_public_key33\n");
+//gem_log(gem_log_notify, "Entered ecdsa_get_public_key33\n");
 	bn_read_be(priv_key, &k);
-gem_log_more(gem_log_notify, "k:\n");
-gem_log_bignum256_more(gem_log_notify, "    ", &k);
+//gem_log_more(gem_log_notify, "k:\n");
+//gem_log_bignum256_more(gem_log_notify, "    ", &k);
 	// compute k*G
 	scalar_multiply(&k, &R);
-gem_log_more(gem_log_notify, "R:\n");
-gem_log_curve_point_more(gem_log_notify, "    ", &R);
+//gem_log_more(gem_log_notify, "R:\n");
+//gem_log_curve_point_more(gem_log_notify, "    ", &R);
 	pub_key[0] = 0x02 | (R.y.val[0] & 0x01);
 	bn_write_be(&R.x, pub_key + 1);
-gem_ByteRef pub_ref = GEM_BYTEREF(pub_key, GEM_PUBLIC_KEY_LEN);
-gem_log_hex_more(gem_log_notify, "pub_key: ", pub_ref, "\n");
+//gem_ByteRef pub_ref = GEM_BYTEREF(pub_key, GEM_PUBLIC_KEY_LEN);
+//gem_log_hex_more(gem_log_notify, "pub_key: ", pub_ref, "\n");
 }
 
 void ecdsa_get_public_key65(const uint8_t *priv_key, uint8_t *pub_key)
