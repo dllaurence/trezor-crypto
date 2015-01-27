@@ -61,7 +61,8 @@ void bn_read_be(const uint8_t *in_number, bignum256 *out_number)
 
 //                gem_log_more(gem_log_notify, "        temp before addition: %08llx\n", temp);
 
-		//temp += (((uint64_t)(read_be(in_number + (7 - i) * 4))) << (2 * i));
+		temp += (((uint64_t)(read_be(in_number + (7 - i) * 4))) << (2 * i));
+#if 0
 		uint32_t r = read_be(in_number + (7 - i) * 4);
 
 //                gem_log_more(gem_log_notify, "          r: %08x\n", r);
@@ -75,6 +76,7 @@ void bn_read_be(const uint8_t *in_number, bignum256 *out_number)
 //                gem_log_more(gem_log_notify, "          s: %08llx\n", s);
 
 		temp += s;
+#endif
 
 //                gem_log_more(gem_log_notify, "        temp after addition: %08llx\n", temp);
 
