@@ -32,7 +32,7 @@
 inline uint32_t read_be(const uint8_t *data)
 {
 gem_log(gem_log_notify, "        Entered read_be\n");
-gem_log_hex_more(gem_log_notify, "            data in:", GEM_BYTEREF(data, 4), "\n");
+gem_log_hex_more(gem_log_notify, "             in:", GEM_BYTEREF(data, 4), "\n");
 	//return (((uint32_t)data[0]) << 24) |
 	//       (((uint32_t)data[1]) << 16) |
 	//       (((uint32_t)data[2]) << 8)  |
@@ -42,7 +42,7 @@ gem_log_hex_more(gem_log_notify, "            data in:", GEM_BYTEREF(data, 4), "
 	       (((uint32_t)data[2]) << 8)  |
 	       (((uint32_t)data[3]));
 
-gem_log_more(gem_log_notify, "            out: %u\n", out);
+gem_log_more(gem_log_notify, "            out: %08x\n", out);
 
     return out;
 }
@@ -62,8 +62,16 @@ void bn_read_be(const uint8_t *in_number, bignum256 *out_number)
 gem_log(gem_log_notify, "Entered bn_read_be\n");
 gem_log_hex_more(gem_log_notify, "    in_number:", GEM_BYTEREF(in_number, GEM_PRIVATE_KEY_LEN), "\n");
 	for (i = 0; i < 8; i++) {
-		temp += (((uint64_t)read_be(in_number + (7 - i) * 4)) << (2 * i));
-gem_log_more(gem_log_notify, "        i= %d, temp: %llu\n", i, temp);
+gem_log_more(gem_log_notify, "    i= %d\n", i);
+		//temp += (((uint64_t)read_be(in_number + (7 - i) * 4)) << (2 * i));
+		uint32_t r = read_be(in_number + (7 - i) * 4);
+gem_log_more(gem_log_notify, "           r: %016x\n", r);
+        uint64_t r64 = (uint64_t) r;
+gem_log_more(gem_log_notify, "         r64: %016llx\n", r64);
+		uint64_t s = r64 << (2 * i);
+gem_log_more(gem_log_notify, "           s: %016llx\n", s);
+		temp += s;
+gem_log_more(gem_log_notify, "        temp: %016llx\n", temp);
 		out_number->val[i]= temp & 0x3FFFFFFF;
 		temp >>= 30;
 	}
