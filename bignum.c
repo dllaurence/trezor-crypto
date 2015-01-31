@@ -28,6 +28,7 @@
 
 // DEBUGPPC
 #include "gem_hsm/log.h"
+#include "compilerfix.h"
 
 inline uint32_t read_be(const uint8_t *data)
 {
@@ -78,8 +79,10 @@ gem_log_more(gem_log_notify, "         r64: %016llx\n", r64);
 		int shf = (2 * i);
 if (i == 2)
 gem_log_more(gem_log_notify, "         shf: %d\n", shf);
-		uint64_t s = r64 << shf;
+		uint64_t s_old = r64 << shf;
+		uint64_t s = lshift64(r64, shf);
 if (i == 2) {
+gem_log_more(gem_log_notify, "       s_old: %016llx\n", s_old);
 gem_log_more(gem_log_notify, "           s: %016llx\n", s);
 gem_log_more(gem_log_notify, "     temp b4: %016llx\n", temp);
 }
