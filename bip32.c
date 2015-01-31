@@ -34,6 +34,7 @@
 
 // DEBUGPPC
 #include "gem_hsm/log.h"
+#include "compilerfix.h"
 
 
 // Not part of the public interface
@@ -116,7 +117,7 @@ int hdnode_private_ckd(HDNode *inout, uint32_t i)
 
 	sha256_Raw(inout->public_key, 33, fingerprint);
 	ripemd160(fingerprint, 32, fingerprint);
-	inout->fingerprint = (fingerprint[0] << 24) + (fingerprint[1] << 16) + (fingerprint[2] << 8) + fingerprint[3];
+	inout->fingerprint = LSHIFT(fingerprint[0], 24) + LSHIFT(fingerprint[1], 16) + LSHIFT(fingerprint[2], 8) + fingerprint[3];
 
 	bn_read_be(inout->private_key, &a);
 
@@ -168,7 +169,7 @@ gem_log_more(gem_log_notify, "    Cannot publicly derive from a hardened "
 
 	sha256_Raw(inout->public_key, 33, fingerprint);
 	ripemd160(fingerprint, 32, fingerprint);
-	inout->fingerprint = (fingerprint[0] << 24) + (fingerprint[1] << 16) + (fingerprint[2] << 8) + fingerprint[3];
+	inout->fingerprint = LSHIFT(fingerprint[0], 24) + LSHIFT(fingerprint[1], 16) + LSHIFT(fingerprint[2], 8) + fingerprint[3];
 
 	memset(inout->private_key, 0, 32);
 	if (!ecdsa_read_pubkey(inout->public_key, &a)) {

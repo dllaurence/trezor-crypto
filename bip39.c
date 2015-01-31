@@ -29,6 +29,8 @@
 #include "sha2.h"
 #include "pbkdf2.h"
 #include "bip39_english.h"
+// DEBUGPPC
+#include "compilerfix.h"
 
 const char *mnemonic_generate(int strength)
 {
@@ -62,8 +64,9 @@ const char *mnemonic_from_data(const uint8_t *data, int len)
 	for (i = 0; i < mlen; i++) {
 		idx = 0;
 		for (j = 0; j < 11; j++) {
-			idx <<= 1;
-			idx += (bits[(i * 11 + j) / 8] & (1 << (7 - ((i * 11 + j) % 8)))) > 0;
+			//idx <left shift equals> 1;
+			idx = LSHIFT(idx, 1);
+			idx += (bits[(i * 11 + j) / 8] & LSHIFT(1, (7 - ((i * 11 + j) % 8)))) > 0;
 		}
 		strcpy(p, wordlist[idx]);
 		p += strlen(wordlist[idx]);
@@ -118,8 +121,8 @@ int mnemonic_check(const char *mnemonic)
 			}
 			if (strcmp(current_word, wordlist[k]) == 0) { // word found on index k
 				for (ki = 0; ki < 11; ki++) {
-					if (k & (1 << (10 - ki))) {
-						bits[bi / 8] |= 1 << (7 - (bi % 8));
+					if (k & LSHIFT(1, (10 - ki))) {
+						bits[bi / 8] |= LSHIFT(1, (7 - (bi % 8)));
 					}
 					bi++;
 				}
