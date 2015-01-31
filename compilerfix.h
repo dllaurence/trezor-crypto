@@ -17,9 +17,12 @@
  * once. Don't change that--in extremis use GCC statement expressions
  * or whatever is required.
  *
+ * FIXME: it's not entirely clear that it is safe to always have 1 be
+ * unsigned long long, but if it isn't then we get shift overflows.
+ *
  **********************************************************************/
 
-#define LSHIFT(x, i) ((x) * (1 << (i)))
+#define LSHIFT(x, i) ((x) * (1ULL << (i)))
 
 
 #endif
