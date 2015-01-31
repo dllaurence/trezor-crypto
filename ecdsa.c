@@ -32,6 +32,8 @@
 #include "hmac.h"
 #include "ecdsa.h"
 #include "base58.h"
+// DEBUGPPC
+#include "compilerfix.h"
 
 // DEBUGPPC
 #include "gem_hsm/log.h"
@@ -152,7 +154,7 @@ void point_multiply(const bignum256 *k, const curve_point *p, curve_point *res)
 	for (i = 0; i < 9; i++) {
 		for (j = 0; j < 30; j++) {
 			if (i == 8 && (k->val[i] >> j) == 0) break;
-			if (k->val[i] & (1u << /*OK*/ j)) {
+			if (k->val[i] & LSHIFT(1u, j)) {
 				if (is_zero) {
 					memcpy(res, &curr, sizeof(curve_point));
 					is_zero = 0;
@@ -212,10 +214,10 @@ void scalar_multiply(const bignum256 *k, curve_point *res)
 	// initial res
 	memcpy(&curr, &G256k1, sizeof(curve_point));
 	for (i = 0; i < 256; i++) {
-		if (k->val[i / 30] & (1u <</*OK*/ (i % 30))) {
+		if (k->val[i / 30] & LSHIFT(1u, (i % 30))) {
 			if (is_zero) {
 #if USE_PRECOMPUTED_CP
-				if (i < 255 && (k->val[(i + 1) / 30] & (1u <</*OK*/ ((i + 1) % 30)))) {
+				if (i < 255 && (k->val[(i + 1) / 30] & LSHIFT(1u, ((i + 1) % 30)))) {
 					memcpy(res, secp256k1_cp2 + i, sizeof(curve_point));
 					i++;
 				} else {
@@ -227,7 +229,7 @@ void scalar_multiply(const bignum256 *k, curve_point *res)
 				is_zero = 0;
 			} else {
 #if USE_PRECOMPUTED_CP
-				if (i < 255 && (k->val[(i + 1) / 30] & (1u <</*OK*/ ((i + 1) % 30)))) {
+				if (i < 255 && (k->val[(i + 1) / 30] & LSHIFT(1u, ((i + 1) % 30)))) {
 					point_add(secp256k1_cp2 + i, res);
 					i++;
 				} else {
@@ -599,7 +601,7 @@ int ecdsa_verify_digest(const uint8_t *pub_key, const uint8_t *sig, const uint8_
 	for (i = 0; i < 9; i++) {
 		for (j = 0; j < 30; j++) {
 			if (i == 8 && (s.val[i] >> j) == 0) break;
-			if (s.val[i] & (1u <</*OK*/ j)) {
+			if (s.val[i] & LSHIFT(1u, j)) {
 				point_add(&pub, &res);
 			}
 			point_double(&pub);
