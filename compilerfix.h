@@ -4,14 +4,22 @@
 
 #include <stdint.h>
 
+/**********************************************************************
+ * LSHIFT
+ *
+ * Work-around for left shift bug in GCC 3.3.6 that truncates the result
+ * of 64-bit shifts.
+ *
+ * Use a macro so it's polymorphic and we can use it for every
+ * occurence of <<, thus avoiding errors identifying 64-bit shifts.
+ *
+ * N.B. This macro is pretty safe as it evaluates each argument exactly
+ * once. Don't change that--in extremis use GCC statement expressions
+ * or whatever is required.
+ *
+ **********************************************************************/
 
-// GCC 3.3.6 from Thales' SDK truncates 64-bit values after shifting them!
-// This is a workaround for the time being.
-inline uint64_t lshift64(uint64_t x, unsigned shift);
-inline uint64_t lshift64(uint64_t x, unsigned shift)
-{
-    uint64_t y = 1 << shift;
-    return x * y;
-}
+#define LSHIFT(x, i) ((x) * (1 << (i)))
+
 
 #endif

@@ -80,7 +80,7 @@ gem_log_more(gem_log_notify, "         r64: %016llx\n", r64);
 if (i == 2)
 gem_log_more(gem_log_notify, "         shf: %d\n", shf);
 		uint64_t s_old = r64 << shf;
-		uint64_t s = lshift64(r64, shf);
+		uint64_t s = LSHIFT(r64, shf);
 if (i == 2) {
 gem_log_more(gem_log_notify, "       s_old: %016llx\n", s_old);
 gem_log_more(gem_log_notify, "           s: %016llx\n", s);
