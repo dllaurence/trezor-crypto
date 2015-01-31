@@ -26,6 +26,8 @@
 #include <stdlib.h>
 
 #include "testutil.h"
+// DEBUGPPC
+#include "compilerfix.h"
 
 
 uint8_t *fromhex(const char *str)
