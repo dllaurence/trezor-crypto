@@ -35,9 +35,9 @@ uint8_t *fromhex(const char *str)
 	size_t i;
 	for (i = 0; i < strlen(str) / 2; i++) {
 		c = 0;
-		if (str[i*2] >= '0' && str[i*2] <= '9') c += (str[i*2] - '0') << 4;
-		if (str[i*2] >= 'a' && str[i*2] <= 'f') c += (10 + str[i*2] - 'a') << 4;
-		if (str[i*2] >= 'A' && str[i*2] <= 'F') c += (10 + str[i*2] - 'A') << 4;
+		if (str[i*2] >= '0' && str[i*2] <= '9') c += LSHIFT((str[i*2] - '0'), 4);
+		if (str[i*2] >= 'a' && str[i*2] <= 'f') c += LSHIFT((10 + str[i*2] - 'a'), 4);
+		if (str[i*2] >= 'A' && str[i*2] <= 'F') c += LSHIFT((10 + str[i*2] - 'A'), 4);
 		if (str[i*2+1] >= '0' && str[i*2+1] <= '9') c += (str[i*2+1] - '0');
 		if (str[i*2+1] >= 'a' && str[i*2+1] <= 'f') c += (10 + str[i*2+1] - 'a');
 		if (str[i*2+1] >= 'A' && str[i*2+1] <= 'F') c += (10 + str[i*2+1] - 'A');

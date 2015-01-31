@@ -35,13 +35,13 @@ inline uint32_t read_be(const uint8_t *data)
 // DEBUGPPC
 //gem_log(gem_log_notify, "        Entered read_be\n");
 //gem_log_hex_more(gem_log_notify, "             in: ", GEM_BYTEREF(data, 4), "\n");
-	//return (((uint32_t)data[0]) << 24) |
-	//       (((uint32_t)data[1]) << 16) |
-	//       (((uint32_t)data[2]) << 8)  |
+	//return LSHIFT(((uint32_t)data[0]), 24) |
+	//       LSHIFT(((uint32_t)data[1]), 16) |
+	//       LSHIFT(((uint32_t)data[2]), 8)  |
 	//       (((uint32_t)data[3]));
-	uint32_t out = (((uint32_t)data[0]) << 24) |
-	       (((uint32_t)data[1]) << 16) |
-	       (((uint32_t)data[2]) << 8)  |
+	uint32_t out = LSHIFT(((uint32_t)data[0]), 24) |
+	       LSHIFT(((uint32_t)data[1]), 16) |
+	       LSHIFT(((uint32_t)data[2]), 8)  |
 	       (((uint32_t)data[3]));
 
 //gem_log_more(gem_log_notify, "            out: %08x\n", out);
@@ -66,7 +66,7 @@ gem_log_hex_more(gem_log_notify, "    in_number:", GEM_BYTEREF(in_number, GEM_PR
 	for (i = 0; i < 8; i++) {
 if (i == 2)
 gem_log_more(gem_log_notify, "    i= %d\n", i);
-		//temp += (((uint64_t)read_be(in_number + (7 - i) * 4)) << (2 * i));
+		//temp += LSHIFT(((uint64_t)read_be(in_number + (7 - i) * 4)), (2 * i));
 		uint32_t r = read_be(in_number + (7 - i) * 4);
 if (i == 2) {
 gem_log_more(gem_log_notify, "           r: %016x\n", r);
@@ -75,11 +75,11 @@ gem_log_more(gem_log_notify, "           r: %016x\n", r);
 if (i == 2) {
 gem_log_more(gem_log_notify, "         r64: %016llx\n", r64);
 }
-		//uint64_t s = r64 << (2 * i);
+		//uint64_t s = LSHIFT(r64, (2 * i));
 		int shf = (2 * i);
 if (i == 2)
 gem_log_more(gem_log_notify, "         shf: %d\n", shf);
-		uint64_t s_old = r64 << shf;
+		uint64_t s_old = LSHIFT(r64, shf);
 		uint64_t s = LSHIFT(r64, shf);
 if (i == 2) {
 gem_log_more(gem_log_notify, "       s_old: %016llx\n", s_old);
@@ -113,7 +113,8 @@ void bn_write_be(const bignum256 *in_number, uint8_t *out_number)
 	int i, shift = 30 + 16 - 32;
 	uint64_t temp = in_number->val[8];
 	for (i = 0; i < 8; i++) {
-		temp <<= 30;
+		//temp <left shift-equals> 30;
+		temp = LSHIFT(temp, 30);
 		temp |= in_number->val[7 - i];
 		write_be(out_number + i * 4, temp >> shift);
 		shift -= 2;
@@ -160,7 +161,7 @@ int bn_bitlen(const bignum256 *a) {
 	while (i >= 0 && a->val[i] == 0) i--;
 	if (i == -1) return 0;
 	j = 29;
-	while ((a->val[i] & (1 << j)) == 0) j--;
+	while ((a->val[i] & LSHIFT(1, j)) == 0) j--;
 	return i * 30 + j + 1;
 }
 
@@ -168,16 +169,16 @@ void bn_lshift(bignum256 *a)
 {
 	int i;
 	for (i = 8; i > 0; i--) {
-		a->val[i] = ((a->val[i] << 1) & 0x3FFFFFFF) | ((a->val[i - 1] & 0x20000000) >> 29);
+		a->val[i] = (LSHIFT(a->val[i], 1) & 0x3FFFFFFF) | ((a->val[i - 1] & 0x20000000) >> 29);
 	}
-	a->val[0] = (a->val[0] << 1) & 0x3FFFFFFF;
+	a->val[0] = LSHIFT(a->val[0], 1) & 0x3FFFFFFF;
 }
 
 void bn_rshift(bignum256 *a)
 {
 	int i;
 	for (i = 0; i < 8; i++) {
-		a->val[i] = (a->val[i] >> 1) | ((a->val[i + 1] & 1) << 29);
+		a->val[i] = (a->val[i] >> 1) | LSHIFT((a->val[i + 1] & 1), 29);
 	}
 	a->val[8] >>= 1;
 }
@@ -261,7 +262,7 @@ void bn_multiply(const bignum256 *k, bignum256 *x, const bignum256 *prime)
 	// compute modulo p division is only estimated so this may give result greater than prime but not bigger than 2 * prime
 	for (i = 16; i >= 8; i--) {
 		// estimate (res / prime)
-		coef = (res[i] >> 16) + (res[i + 1] << 14);
+		coef = (res[i] >> 16) + LSHIFT(res[i + 1], 14);
 		// substract (coef * prime) from res
 		temp = 0x1000000000000000ull + res[i - 8] - prime->val[0] * (uint64_t)coef;
 		res[i - 8] = temp & 0x3FFFFFFF;
@@ -382,20 +383,20 @@ void bn_inverse(bignum256 *x, const bignum256 *prime)
 		if (i == len1) break;
 		for (;;) {
 			for (i = 0; i < 30; i++) {
-				if (u[0] & (1 << i)) break;
+				if (u[0] & LSHIFT(1, i)) break;
 			}
 			if (i == 0) break;
-			mask = (1 << i) - 1;
+			mask = LSHIFT(1, i) - 1;
 			for (j = 0; j + 1 < len1; j++) {
-				u[j] = (u[j] >> i) | ((u[j + 1] & mask) << (32 - i));
+				u[j] = (u[j] >> i) | LSHIFT((u[j + 1] & mask), (32 - i));
 			}
 			u[j] = (u[j] >> i);
-			mask = (1 << (32 - i)) - 1;
+			mask = LSHIFT(1, (32 - i)) - 1;
 			s[len2] = s[len2 - 1] >> (32 - i);
 			for (j = len2 - 1; j > 0; j--) {
-				s[j] = (s[j - 1] >> (32 - i)) | ((s[j] & mask) << i);
+				s[j] = (s[j - 1] >> (32 - i)) | LSHIFT((s[j] & mask), i);
 			}
-			s[0] = (s[0] & mask) << i;
+			s[0] = LSHIFT((s[0] & mask), i);
 			if (s[len2]) {
 				r[len2] = 0;
 				len2++;
@@ -404,20 +405,20 @@ void bn_inverse(bignum256 *x, const bignum256 *prime)
 		}
 		for (;;) {
 			for (i = 0; i < 30; i++) {
-				if (v[0] & (1 << i)) break;
+				if (v[0] & LSHIFT(1, i)) break;
 			}
 			if (i == 0) break;
-			mask = (1 << i) - 1;
+			mask = LSHIFT(1, i) - 1;
 			for (j = 0; j + 1 < len1; j++) {
-				v[j] = (v[j] >> i) | ((v[j + 1] & mask) << (32 - i));
+				v[j] = (v[j] >> i) | LSHIFT((v[j + 1] & mask), (32 - i));
 			}
 			v[j] = (v[j] >> i);
-			mask = (1 << (32 - i)) - 1;
+			mask = LSHIFT(1, (32 - i)) - 1;
 			r[len2] = r[len2 - 1] >> (32 - i);
 			for (j = len2 - 1; j > 0; j--) {
-				r[j] = (r[j - 1] >> (32 - i)) | ((r[j] & mask) << i);
+				r[j] = (r[j - 1] >> (32 - i)) | LSHIFT((r[j] & mask), i);
 			}
-			r[0] = (r[0] & mask) << i;
+			r[0] = LSHIFT((r[0] & mask), i);
 			if (r[len2]) {
 				s[len2] = 0;
 				len2++;
@@ -433,7 +434,7 @@ void bn_inverse(bignum256 *x, const bignum256 *prime)
 			temp >>= 32;
 			for (i = 1; i < len1; i++) {
 				temp += 0xFFFFFFFFull + u[i] - v[i];
-				u[i - 1] += (temp & 1) << 31;
+				u[i - 1] += LSHIFT((temp & 1), 31);
 				u[i] = (temp >> 1) & 0x7FFFFFFF;
 				temp >>= 32;
 			}
@@ -459,7 +460,7 @@ void bn_inverse(bignum256 *x, const bignum256 *prime)
 			temp >>= 32;
 			for (i = 1; i < len1; i++) {
 				temp += 0xFFFFFFFFull + v[i] - u[i];
-				v[i - 1] += (temp & 1) << 31;
+				v[i - 1] += LSHIFT((temp & 1), 31);
 				v[i] = (temp >> 1) & 0x7FFFFFFF;
 				temp >>= 32;
 			}
@@ -488,7 +489,7 @@ void bn_inverse(bignum256 *x, const bignum256 *prime)
 	r[0] = r[0] & 0x3FFFFFFFu;
 	for (i = 1; i < len2; i++) {
 		uint32_t q = r[i] >> (30 - 2 * i);
-		r[i] = ((r[i] << (2 * i)) & 0x3FFFFFFFu) + j;
+		r[i] = (LSHIFT(r[i], (2 * i)) & 0x3FFFFFFFu) + j;
 		j=q;
 	}
 	r[i] = j;
@@ -530,13 +531,13 @@ void bn_inverse(bignum256 *x, const bignum256 *prime)
 				temp32 >>= 30;
 				for (i = 1; i < 9; i++) {
 					temp32 += r[i] + prime->val[i];
-					r[i - 1] += (temp32 & 1) << 29;
+					r[i - 1] += LSHIFT((temp32 & 1), 29);
 					r[i] = (temp32 >> 1) & 0x1FFFFFFF;
 					temp32 >>= 30;
 				}
 			} else {
 				for (i = 0; i < 8; i++) {
-					r[i] = (r[i] >> 1) | ((r[i + 1] & 1) << 29);
+					r[i] = (r[i] >> 1) | LSHIFT((r[i + 1] & 1), 29);
 				}
 				r[8] = r[8] >> 1;
 			}
@@ -621,13 +622,13 @@ void bn_divmod58(bignum256 *a, uint32_t *r)
 void bn_print(const bignum256 *a)
 {
 	printf("%04x", a->val[8] & 0x0000FFFF);
-	printf("%08x", (a->val[7] << 2) | ((a->val[6] & 0x30000000) >> 28));
+	printf("%08x", LSHIFT(a->val[7], 2) | ((a->val[6] & 0x30000000) >> 28));
 	printf("%07x", a->val[6] & 0x0FFFFFFF);
-	printf("%08x", (a->val[5] << 2) | ((a->val[4] & 0x30000000) >> 28));
+	printf("%08x", LSHIFT(a->val[5], 2) | ((a->val[4] & 0x30000000) >> 28));
 	printf("%07x", a->val[4] & 0x0FFFFFFF);
-	printf("%08x", (a->val[3] << 2) | ((a->val[2] & 0x30000000) >> 28));
+	printf("%08x", LSHIFT(a->val[3], 2) | ((a->val[2] & 0x30000000) >> 28));
 	printf("%07x", a->val[2] & 0x0FFFFFFF);
-	printf("%08x", (a->val[1] << 2) | ((a->val[0] & 0x30000000) >> 28));
+	printf("%08x", LSHIFT(a->val[1], 2) | ((a->val[0] & 0x30000000) >> 28));
 	printf("%07x", a->val[0] & 0x0FFFFFFF);
 }
 
