@@ -212,13 +212,13 @@ gem_log_WalletNode_more(gem_log_notify, inout);
 void hdnode_fill_public_key(HDNode *node)
 {
 // DEBUGPPC
-gem_log(gem_log_notify, "Entered hdnode_fill_public_key\n");
-gem_log_more(gem_log_notify, "Node before ecdsa_get_public_key\n");
-gem_log_WalletNode_more(gem_log_notify, node);
+//gem_log(gem_log_notify, "Entered hdnode_fill_public_key\n");
+//gem_log_more(gem_log_notify, "Node before ecdsa_get_public_key\n");
+//gem_log_WalletNode_more(gem_log_notify, node);
 	ecdsa_get_public_key33(node->private_key, node->public_key);
-gem_log_more(gem_log_notify, "Node after ecdsa_get_public_key\n");
-gem_log_WalletNode_more(gem_log_notify, node);
-gem_log(gem_log_notify, "Exiting hdnode_fill_public_key\n");
+//gem_log_more(gem_log_notify, "Node after ecdsa_get_public_key\n");
+//gem_log_WalletNode_more(gem_log_notify, node);
+//gem_log(gem_log_notify, "Exiting hdnode_fill_public_key\n");
 }
 
 void hdnode_serialize(const HDNode *node, uint32_t version, char use_public, char *str)

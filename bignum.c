@@ -31,8 +31,9 @@
 
 inline uint32_t read_be(const uint8_t *data)
 {
-gem_log(gem_log_notify, "        Entered read_be\n");
-gem_log_hex_more(gem_log_notify, "             in: ", GEM_BYTEREF(data, 4), "\n");
+// DEBUGPPC
+//gem_log(gem_log_notify, "        Entered read_be\n");
+//gem_log_hex_more(gem_log_notify, "             in: ", GEM_BYTEREF(data, 4), "\n");
 	//return (((uint32_t)data[0]) << 24) |
 	//       (((uint32_t)data[1]) << 16) |
 	//       (((uint32_t)data[2]) << 8)  |
@@ -42,7 +43,7 @@ gem_log_hex_more(gem_log_notify, "             in: ", GEM_BYTEREF(data, 4), "\n"
 	       (((uint32_t)data[2]) << 8)  |
 	       (((uint32_t)data[3]));
 
-gem_log_more(gem_log_notify, "            out: %08x\n", out);
+//gem_log_more(gem_log_notify, "            out: %08x\n", out);
 
     return out;
 }
@@ -62,30 +63,46 @@ void bn_read_be(const uint8_t *in_number, bignum256 *out_number)
 gem_log(gem_log_notify, "Entered bn_read_be\n");
 gem_log_hex_more(gem_log_notify, "    in_number:", GEM_BYTEREF(in_number, GEM_PRIVATE_KEY_LEN), "\n");
 	for (i = 0; i < 8; i++) {
+if (i == 2)
 gem_log_more(gem_log_notify, "    i= %d\n", i);
 		//temp += (((uint64_t)read_be(in_number + (7 - i) * 4)) << (2 * i));
 		uint32_t r = read_be(in_number + (7 - i) * 4);
+if (i == 2) {
 gem_log_more(gem_log_notify, "           r: %016x\n", r);
+}
         uint64_t r64 = (uint64_t) r;
+if (i == 2) {
 gem_log_more(gem_log_notify, "         r64: %016llx\n", r64);
+}
 		//uint64_t s = r64 << (2 * i);
 		int shf = (2 * i);
+if (i == 2)
 gem_log_more(gem_log_notify, "         shf: %d\n", shf);
 		uint64_t s = r64 << shf;
+if (i == 2) {
 gem_log_more(gem_log_notify, "           s: %016llx\n", s);
 gem_log_more(gem_log_notify, "     temp b4: %016llx\n", temp);
+}
 		temp += s;
+if (i == 2) {
 gem_log_more(gem_log_notify, "     temp af: %016llx\n", temp);
+}
 		out_number->val[i]= temp & 0x3FFFFFFF;
+if (i == 2) {
 gem_log_more(gem_log_notify, "  out_number: %016x\n", out_number->val[i]);
 gem_log_more(gem_log_notify, "sizeof(temp): %u\n", sizeof(temp));
 gem_log_more(gem_log_notify, "  UINT64_MAX: %llx\n", UINT64_MAX);
 gem_log_more(gem_log_notify, "          >>: %016llx\n", temp >> 30);
+}
 		temp >>= 30;
+if (i == 2) {
 gem_log_more(gem_log_notify, "    temp shf: %016llx\n", temp);
+}
 	}
 	out_number->val[8] = temp;
+if (i == 2) {
 gem_log_bignum256_more(gem_log_notify, "    out_number:", out_number);
+}
 }
 
 void bn_write_be(const bignum256 *in_number, uint8_t *out_number)
