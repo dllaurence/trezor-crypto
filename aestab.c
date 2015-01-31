@@ -23,6 +23,9 @@ Issue Date: 20/12/2007
 #include "aes.h"
 #include "aesopt.h"
 
+// DEBUGPPC
+#include "compilerfix.h"
+
 #if defined(FIXED_TABLES)
 
 #define sb_data(w) {\
@@ -152,9 +155,9 @@ Issue Date: 20/12/2007
 
 #if defined(FIXED_TABLES) || !defined(FF_TABLES)
 
-#define f2(x)   ((x<<1) ^ (((x>>7) & 1) * WPOLY))
-#define f4(x)   ((x<<2) ^ (((x>>6) & 1) * WPOLY) ^ (((x>>6) & 2) * WPOLY))
-#define f8(x)   ((x<<3) ^ (((x>>5) & 1) * WPOLY) ^ (((x>>5) & 2) * WPOLY) \
+#define f2(x)   (LSHIFT(x,1) ^ (((x>>7) & 1) * WPOLY))
+#define f4(x)   (LSHIFT(x,2) ^ (((x>>6) & 1) * WPOLY) ^ (((x>>6) & 2) * WPOLY))
+#define f8(x)   (LSHIFT(x,3) ^ (((x>>5) & 1) * WPOLY) ^ (((x>>5) & 2) * WPOLY) \
                         ^ (((x>>5) & 4) * WPOLY))
 #define f3(x)   (f2(x) ^ x)
 #define f9(x)   (f8(x) ^ x)
@@ -255,13 +258,13 @@ static uint8_t gf_inv(const uint8_t x)
 /* The forward and inverse affine transformations used in the S-box */
 uint8_t fwd_affine(const uint8_t x)
 {   uint32_t w = x;
-    w ^= (w << 1) ^ (w << 2) ^ (w << 3) ^ (w << 4);
+    w ^= LSHIFT(w, 1) ^ LSHIFT(w, 2) ^ LSHIFT(w, 3) ^ LSHIFT(w, 4);
     return 0x63 ^ ((w ^ (w >> 8)) & 0xff);
 }
 
 uint8_t inv_affine(const uint8_t x)
 {   uint32_t w = x;
-    w = (w << 1) ^ (w << 3) ^ (w << 6);
+    w = LSHIFT(w, 1) ^ LSHIFT(w, 3) ^ LSHIFT(w, 6);
     return 0x05 ^ ((w ^ (w >> 8)) & 0xff);
 }
 
@@ -287,7 +290,7 @@ AES_RETURN aes_init(void)
         pow[i] = (uint8_t)w;
         pow[i + 255] = (uint8_t)w;
         log[w] = (uint8_t)i++;
-        w ^=  (w << 1) ^ (w & 0x80 ? WPOLY : 0);
+        w ^=  LSHIFT(w, 1) ^ (w & 0x80 ? WPOLY : 0);
     }
     while (w != 1);
 

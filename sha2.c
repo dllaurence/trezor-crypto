@@ -32,6 +32,9 @@
 #include <stdint.h>
 #include "sha2.h"
 
+// DEBUGPPC
+#include "compilerfix.h"
+
 /*
  * ASSERT NOTE:
  * Some sanity checking code is included using assert().  On my FreeBSD
@@ -109,16 +112,16 @@ typedef uint64_t sha2_word64;	/* Exactly 8 bytes */
 #if BYTE_ORDER == LITTLE_ENDIAN
 #define REVERSE32(w,x)	{ \
 	sha2_word32 tmp = (w); \
-	tmp = (tmp >> 16) | (tmp << 16); \
-	(x) = ((tmp & 0xff00ff00UL) >> 8) | ((tmp & 0x00ff00ffUL) << 8); \
+	tmp = (tmp >> 16) | LSHIFT(tmp, 16); \
+	(x) = ((tmp & 0xff00ff00UL) >> 8) | LSHIFT((tmp & 0x00ff00ffUL), 8); \
 }
 #define REVERSE64(w,x)	{ \
 	sha2_word64 tmp = (w); \
-	tmp = (tmp >> 32) | (tmp << 32); \
+	tmp = (tmp >> 32) | LSHIFT(tmp, 32); \
 	tmp = ((tmp & 0xff00ff00ff00ff00ULL) >> 8) | \
-	      ((tmp & 0x00ff00ff00ff00ffULL) << 8); \
+	      LSHIFT((tmp & 0x00ff00ff00ff00ffULL), 8); \
 	(x) = ((tmp & 0xffff0000ffff0000ULL) >> 16) | \
-	      ((tmp & 0x0000ffff0000ffffULL) << 16); \
+	      LSHIFT((tmp & 0x0000ffff0000ffffULL), 16); \
 }
 #endif /* BYTE_ORDER == LITTLE_ENDIAN */
 
@@ -149,9 +152,9 @@ typedef uint64_t sha2_word64;	/* Exactly 8 bytes */
 /* Shift-right (used in SHA-256, SHA-384, and SHA-512): */
 #define R(b,x) 		((x) >> (b))
 /* 32-bit Rotate-right (used in SHA-256): */
-#define S32(b,x)	(((x) >> (b)) | ((x) << (32 - (b))))
+#define S32(b,x)	(((x) >> (b)) | LSHIFT((x), (32 - (b))))
 /* 64-bit Rotate-right (used in SHA-384 and SHA-512): */
-#define S64(b,x)	(((x) >> (b)) | ((x) << (64 - (b))))
+#define S64(b,x)	(((x) >> (b)) | LSHIFT((x), (64 - (b))))
 
 /* Two of six logical functions used in SHA-256, SHA-384, and SHA-512: */
 #define Ch(x,y,z)	(((x) & (y)) ^ ((~(x)) & (z)))
@@ -488,14 +491,14 @@ void sha256_Update(SHA256_CTX* context, const sha2_byte *data, size_t len) {
 		if (len >= freespace) {
 			/* Fill the buffer completely and process it */
 			MEMCPY_BCOPY(&context->buffer[usedspace], data, freespace);
-			context->bitcount += freespace << 3;
+			context->bitcount += LSHIFT(freespace, 3);
 			len -= freespace;
 			data += freespace;
 			sha256_Transform(context, (sha2_word32*)context->buffer);
 		} else {
 			/* The buffer is not yet full */
 			MEMCPY_BCOPY(&context->buffer[usedspace], data, len);
-			context->bitcount += len << 3;
+			context->bitcount += LSHIFT(len, 3);
 			/* Clean up: */
 			usedspace = freespace = 0;
 			return;
@@ -504,14 +507,14 @@ void sha256_Update(SHA256_CTX* context, const sha2_byte *data, size_t len) {
 	while (len >= SHA256_BLOCK_LENGTH) {
 		/* Process as many complete blocks as we can */
 		sha256_Transform(context, (sha2_word32*)data);
-		context->bitcount += SHA256_BLOCK_LENGTH << 3;
+		context->bitcount += LSHIFT(SHA256_BLOCK_LENGTH, 3);
 		len -= SHA256_BLOCK_LENGTH;
 		data += SHA256_BLOCK_LENGTH;
 	}
 	if (len > 0) {
 		/* There's left-overs, so save 'em */
 		MEMCPY_BCOPY(context->buffer, data, len);
-		context->bitcount += len << 3;
+		context->bitcount += LSHIFT(len, 3);
 	}
 	/* Clean up: */
 	usedspace = freespace = 0;
@@ -809,14 +812,14 @@ void sha512_Update(SHA512_CTX* context, const sha2_byte *data, size_t len) {
 		if (len >= freespace) {
 			/* Fill the buffer completely and process it */
 			MEMCPY_BCOPY(&context->buffer[usedspace], data, freespace);
-			ADDINC128(context->bitcount, freespace << 3);
+			ADDINC128(context->bitcount, LSHIFT(freespace, 3));
 			len -= freespace;
 			data += freespace;
 			sha512_Transform(context, (sha2_word64*)context->buffer);
 		} else {
 			/* The buffer is not yet full */
 			MEMCPY_BCOPY(&context->buffer[usedspace], data, len);
-			ADDINC128(context->bitcount, len << 3);
+			ADDINC128(context->bitcount, LSHIFT(len, 3));
 			/* Clean up: */
 			usedspace = freespace = 0;
 			return;
@@ -825,14 +828,14 @@ void sha512_Update(SHA512_CTX* context, const sha2_byte *data, size_t len) {
 	while (len >= SHA512_BLOCK_LENGTH) {
 		/* Process as many complete blocks as we can */
 		sha512_Transform(context, (sha2_word64*)data);
-		ADDINC128(context->bitcount, SHA512_BLOCK_LENGTH << 3);
+		ADDINC128(context->bitcount, LSHIFT(SHA512_BLOCK_LENGTH, 3));
 		len -= SHA512_BLOCK_LENGTH;
 		data += SHA512_BLOCK_LENGTH;
 	}
 	if (len > 0) {
 		/* There's left-overs, so save 'em */
 		MEMCPY_BCOPY(context->buffer, data, len);
-		ADDINC128(context->bitcount, len << 3);
+		ADDINC128(context->bitcount, LSHIFT(len, 3));
 	}
 	/* Clean up: */
 	usedspace = freespace = 0;
