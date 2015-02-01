@@ -3,6 +3,7 @@
 
 
 #include <stdint.h>
+#include <stddef.h>
 
 /**********************************************************************
  * LSHIFT
@@ -62,44 +63,8 @@
 // Alternative implementation with function + macro--note that a
 // pure functional implementation doesn't work.
 #define LSHIFT_FUNCTION(x, i) (lshift_base(x, i, sizeof(x)))
-static inline uint64_t lshift_base(uint64_t x, unsigned i, size_t x_size);
-static inline uint64_t lshift_base(uint64_t x, unsigned i, size_t x_size)
-{
-    const uint32_t shift31 = 1 << 31; // 31 works fine here
-
-    while (i > 31) {
-        x *= shift31;
-        i -= 31;
-    }
-
-    i = 1 << i;
-    uint64_t s = x * i;
-
-    switch (x_size) {
-    case 1:
-        s &= 0xFF;
-        break;
-    case 2:
-        s &= 0xFFFF;
-        break;
-    case 4:
-        s &= 0xFFFFFFFF;
-        break;
-    case 8:
-        // Do nothing
-        break;
-    }
-
-#if 0
-    if (x_size == 4) {
-    }
-    else if (x_size != 8) {
-        if (x_size
-    }
-#endif
-
-    return s;
-}
+// Would like this to be static inline, but 3.3.6 can't inline it
+uint64_t lshift_base(uint64_t x, unsigned i, size_t x_size);
 
 
 #if 0
