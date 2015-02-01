@@ -30,23 +30,12 @@
 #include "gem_hsm/log.h"
 #include "compilerfix.h"
 
-inline uint32_t read_be(const uint8_t *data)
+/*inline*/ uint32_t read_be(const uint8_t *data)
 {
-// DEBUGPPC
-//gem_log(gem_log_notify, "        Entered read_be\n");
-//gem_log_hex_more(gem_log_notify, "             in: ", GEM_BYTEREF(data, 4), "\n");
-	//return LSHIFT(((uint32_t)data[0]), 24) |
-	//       LSHIFT(((uint32_t)data[1]), 16) |
-	//       LSHIFT(((uint32_t)data[2]), 8)  |
-	//       (((uint32_t)data[3]));
-	uint32_t out = LSHIFT(((uint32_t)data[0]), 24) |
+	return LSHIFT(((uint32_t)data[0]), 24) |
 	       LSHIFT(((uint32_t)data[1]), 16) |
 	       LSHIFT(((uint32_t)data[2]), 8)  |
 	       (((uint32_t)data[3]));
-
-//gem_log_more(gem_log_notify, "            out: %08x\n", out);
-
-    return out;
 }
 
 inline void write_be(uint8_t *data, uint32_t x)
@@ -67,7 +56,7 @@ void bn_read_be(const uint8_t *in_number, bignum256 *out_number)
 //if (i == 2)
 //gem_log_more(gem_log_notify, "    i= %d\n", i);
 #if 1
-		temp += LSHIFT32(((uint64_t)read_be(in_number + (7 - i) * 4)), (2 * i));
+		temp += LSHIFT(((uint64_t)read_be(in_number + (7 - i) * 4)), (2 * i));
 #else
 		uint32_t r = read_be(in_number + (7 - i) * 4);
 if (i == 2) {
