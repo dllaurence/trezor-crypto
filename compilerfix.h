@@ -67,7 +67,7 @@
 uint64_t lshift_base(uint64_t x, unsigned i, size_t x_size);
 
 
-#if 0
+#if 1
 #define LSHIFT(x, i) (LSHIFT_FUNCTION(x, i))
 #else
 #define LSHIFT(x, i) (LSHIFT_MACRO(x, i))
