@@ -395,16 +395,16 @@ int ecdsa_sign_digest(const uint8_t *priv_key, const uint8_t *digest, uint8_t *s
 void ecdsa_get_public_key33(const uint8_t *priv_key, uint8_t *pub_key)
 {
 // DEBUGPPC
-gem_log(gem_log_notify, "Entered ecdsa_get_public_key33\n");
-gem_log_hex_more(gem_log_notify, "priv key passed in:", GEM_BYTEREF(priv_key, GEM_PRIVATE_KEY_LEN), "\n");
+//gem_log(gem_log_notify, "Entered ecdsa_get_public_key33\n");
+//gem_log_hex_more(gem_log_notify, "priv key passed in:", GEM_BYTEREF(priv_key, GEM_PRIVATE_KEY_LEN), "\n");
 	curve_point R;
 	bignum256 k;
 
 	bn_read_be(priv_key, &k);
 	// compute k*G
-gem_log_more(gem_log_notify, "k in to scalar_multiply: \n");
+//gem_log_more(gem_log_notify, "k in to scalar_multiply: \n");
 	scalar_multiply(&k, &R);
-gem_log_bignum256_more(gem_log_notify, "    ", &k);
+//gem_log_bignum256_more(gem_log_notify, "    ", &k);
 gem_log_more(gem_log_notify, "R out of scalar multiply: \n");
 gem_log_curve_point_more(gem_log_notify, "    ", &R);
 	pub_key[0] = 0x02 | (R.y.val[0] & 0x01);

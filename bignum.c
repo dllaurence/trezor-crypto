@@ -102,15 +102,22 @@ gem_log_more(gem_log_notify, "          >>: %016llx\n", temp >> 30);
 
 void bn_write_be(const bignum256 *in_number, uint8_t *out_number)
 {
+// DEBUGPPC
+gem_log(gem_log_notify, "Entered bn_write_be\n");
 	int i, shift = 30 + 16 - 32;
 	uint64_t temp = in_number->val[8];
 	for (i = 0; i < 8; i++) {
 		//temp <left shift-equals> 30;
 		temp = LSHIFT(temp, 30);
+gem_log_more(gem_log_notify, "i: %d\n", i);
+gem_log_more(gem_log_notify, "    temp: %016llx\n", temp);
+
 		temp |= in_number->val[7 - i];
+gem_log_more(gem_log_notify, "    temp: %016llx\n", temp);
 		write_be(out_number + i * 4, temp >> shift);
 		shift -= 2;
 	}
+gem_log_more(gem_log_notify, "Leaving bn_write_be\n");
 }
 
 void bn_zero(bignum256 *a)
