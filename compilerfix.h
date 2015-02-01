@@ -24,5 +24,16 @@
 
 #define LSHIFT(x, i) ((x) * (1ULL << (i)))
 
+#define LSHIFT32(x, i) lshift(x, i)
+
+
+static inline uint64_t lshift(uint64_t x, int i);
+static inline uint64_t lshift(uint64_t x, int i)
+{
+
+    uint32_t xh = x >> 32;
+    uint32_t xl = x;
+    return x * (1ULL << i);
+}
 
 #endif

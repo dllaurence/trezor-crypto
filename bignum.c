@@ -61,12 +61,14 @@ void bn_read_be(const uint8_t *in_number, bignum256 *out_number)
 {
 	int i;
 	uint64_t temp = 0;
-gem_log(gem_log_notify, "Entered bn_read_be\n");
-gem_log_hex_more(gem_log_notify, "    in_number:", GEM_BYTEREF(in_number, GEM_PRIVATE_KEY_LEN), "\n");
+//gem_log(gem_log_notify, "Entered bn_read_be\n");
+//gem_log_hex_more(gem_log_notify, "    in_number:", GEM_BYTEREF(in_number, GEM_PRIVATE_KEY_LEN), "\n");
 	for (i = 0; i < 8; i++) {
-if (i == 2)
-gem_log_more(gem_log_notify, "    i= %d\n", i);
-		//temp += LSHIFT(((uint64_t)read_be(in_number + (7 - i) * 4)), (2 * i));
+//if (i == 2)
+//gem_log_more(gem_log_notify, "    i= %d\n", i);
+#if 1
+		temp += LSHIFT32(((uint64_t)read_be(in_number + (7 - i) * 4)), (2 * i));
+#else
 		uint32_t r = read_be(in_number + (7 - i) * 4);
 if (i == 2) {
 gem_log_more(gem_log_notify, "           r: %016x\n", r);
@@ -87,25 +89,26 @@ gem_log_more(gem_log_notify, "           s: %016llx\n", s);
 gem_log_more(gem_log_notify, "     temp b4: %016llx\n", temp);
 }
 		temp += s;
+#endif
 if (i == 2) {
 gem_log_more(gem_log_notify, "     temp af: %016llx\n", temp);
 }
 		out_number->val[i]= temp & 0x3FFFFFFF;
 if (i == 2) {
-gem_log_more(gem_log_notify, "  out_number: %016x\n", out_number->val[i]);
-gem_log_more(gem_log_notify, "sizeof(temp): %u\n", sizeof(temp));
-gem_log_more(gem_log_notify, "  UINT64_MAX: %llx\n", UINT64_MAX);
+//gem_log_more(gem_log_notify, "  out_number: %016x\n", out_number->val[i]);
+//gem_log_more(gem_log_notify, "sizeof(temp): %u\n", sizeof(temp));
+//gem_log_more(gem_log_notify, "  UINT64_MAX: %llx\n", UINT64_MAX);
 gem_log_more(gem_log_notify, "          >>: %016llx\n", temp >> 30);
 }
 		temp >>= 30;
-if (i == 2) {
-gem_log_more(gem_log_notify, "    temp shf: %016llx\n", temp);
-}
+//if (i == 2) {
+//gem_log_more(gem_log_notify, "    temp shf: %016llx\n", temp);
+//}
 	}
 	out_number->val[8] = temp;
-if (i == 2) {
-gem_log_bignum256_more(gem_log_notify, "    out_number:", out_number);
-}
+//if (i == 2) {
+//gem_log_bignum256_more(gem_log_notify, "    out_number:", out_number);
+//}
 }
 
 void bn_write_be(const bignum256 *in_number, uint8_t *out_number)
