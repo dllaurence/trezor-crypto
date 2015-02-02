@@ -114,7 +114,10 @@ gem_log_more(gem_log_notify, "    temp: %016llx\n", temp);
 
 		temp |= in_number->val[7 - i];
 gem_log_more(gem_log_notify, "    temp: %016llx\n", temp);
-		write_be(out_number + i * 4, temp >> shift);
+		//write_be(out_number + i * 4, temp >> shift);
+uint8_t temp2 = temp >> shift;
+gem_log_more(gem_log_notify, "    temp2: %016llx\n", temp2);
+write_be(out_number + i * 4, temp2);
 		shift -= 2;
 	}
 gem_log_more(gem_log_notify, "Leaving bn_write_be\n");
