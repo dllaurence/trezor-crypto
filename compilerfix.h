@@ -66,9 +66,9 @@
 // Would like this to be static inline, but 3.3.6 can't inline it
 uint64_t lshift_base(uint64_t x, unsigned i, size_t x_size);
 
-#define RSHIFT_FUNCTION(x, i) (rshift_base(x, i, sizeof(x)))
+#define RSHIFT_FUNCTION(x, i) (rshift_base(x, i))
 // Would like this to be static inline, but 3.3.6 can't inline it
-uint64_t rshift_base(uint64_t x, unsigned i, size_t x_size);
+uint64_t rshift_base(uint64_t x, unsigned i);
 
 
 #if 1
