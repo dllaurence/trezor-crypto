@@ -36,6 +36,7 @@ uint64_t lshift_base(uint64_t x, unsigned i, size_t x_size)
 }
 
 
+#if 0
 uint64_t rshift_base(uint64_t x, unsigned i)
 {
     const uint32_t shift31 = 1 << 31; // 31 works fine here
@@ -50,13 +51,14 @@ uint64_t rshift_base(uint64_t x, unsigned i)
 
     return x;
 }
+#endif
 
 
 #if 0
 //Another possible implementation
 
-uint64_t rshift_base(uint64_t x, unsigned i, size_t x_size)
+uint64_t rshift_base(uint64_t x, unsigned i)
 {
-    return x / lshift_base(1, i, x_size);
+    return x / lshift_base(1, i, 8);
 }
 #endif
