@@ -25,6 +25,9 @@
 #include "base58.h"
 #include "sha2.h"
 
+// DEBUGPPC
+#include "compilerfix.h"
+
 int base58_encode_check(const uint8_t *data, int len, char *str)
 {
 	int outlen;
@@ -124,7 +127,8 @@ int base58_decode_check(const char *str, uint8_t *data)
 		for (j = outlen + 4 - 1; j >= 0; j--) {
 			k += mydata[j] * 58;
 			mydata[j] = k & 0xFF;
-			k >>= 8;
+			//k RSHIFTEQ 8;
+			k = RSHIFT(k, 8);
 		}
 		str++;
 	}

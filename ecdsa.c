@@ -85,7 +85,8 @@ void point_add(const curve_point *cp1, curve_point *cp2)
 	for (i = 0; i < 9; i++) {
 		temp += xr.val[i] + 3u * prime256k1.val[i] - cp1->x.val[i] - cp2->x.val[i];
 		xr.val[i] = temp & 0x3FFFFFFF;
-		temp >>= 30;
+		//temp <RSHIFTEQ> 30;
+		temp = RSHIFT(temp, 30);
 	}
 	bn_fast_mod(&xr, &prime256k1);
 	bn_substract(&(cp1->x), &xr, &yr);
@@ -127,7 +128,8 @@ void point_double(curve_point *cp)
 	for (i = 0; i < 9; i++) {
 		temp += xr.val[i] + 3u * prime256k1.val[i] - 2u * cp->x.val[i];
 		xr.val[i] = temp & 0x3FFFFFFF;
-		temp >>= 30;
+		//temp RSHIFTEQ 30;
+		temp = RSHIFT(temp, 30);
 	}
 	bn_fast_mod(&xr, &prime256k1);
 	bn_substract(&(cp->x), &xr, &yr);
@@ -153,7 +155,7 @@ void point_multiply(const bignum256 *k, const curve_point *p, curve_point *res)
 	memcpy(&curr, p, sizeof(curve_point));
 	for (i = 0; i < 9; i++) {
 		for (j = 0; j < 30; j++) {
-			if (i == 8 && (k->val[i] >> j) == 0) break;
+			if (i == 8 && RSHIFT(k->val[i], j) == 0) break;
 			if (k->val[i] & LSHIFT(1u, j)) {
 				if (is_zero) {
 					memcpy(res, &curr, sizeof(curve_point));
@@ -366,7 +368,7 @@ int ecdsa_sign_digest(const uint8_t *priv_key, const uint8_t *digest, uint8_t *s
 	bn_multiply(&R.x, da, &order256k1);
 	for (i = 0; i < 8; i++) {
 		da->val[i] += z.val[i];
-		da->val[i + 1] += (da->val[i] >> 30);
+		da->val[i + 1] += RSHIFT(da->val[i], 30);
 		da->val[i] &= 0x3FFFFFFF;
 	}
 	da->val[8] += z.val[8];
@@ -600,7 +602,7 @@ int ecdsa_verify_digest(const uint8_t *pub_key, const uint8_t *sig, const uint8_
 	// both pub and res can be infinity, can have y = 0 OR can be equal -> false negative
 	for (i = 0; i < 9; i++) {
 		for (j = 0; j < 30; j++) {
-			if (i == 8 && (s.val[i] >> j) == 0) break;
+			if (i == 8 && RSHIFT(s.val[i], j) == 0) break;
 			if (s.val[i] & LSHIFT(1u, j)) {
 				point_add(&pub, &res);
 			}

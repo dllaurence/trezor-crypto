@@ -4,7 +4,7 @@
 // DEBUGPPC
 #include "compilerfix.h"
 
-#define ROL(x, n)	(LSHIFT((x), (n)) | ((x) >> (32-(n))))
+#define ROL(x, n)	(LSHIFT((x), (n)) | RSHIFT((x), (32-(n))))
 
 #define F(x, y, z)		((x) ^ (y) ^ (z))
 #define G(x, y, z)		(((x) & (y)) | (~(x) & (z)))
@@ -263,7 +263,7 @@ void ripemd160(const uint8_t *msg, uint32_t msg_len, uint8_t *hash)
 	int j;
 	uint32_t digest[5] = {0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0UL};
 
-	for (i = 0; i < (msg_len >> 6); ++i) {
+	for (i = 0; i < RSHIFT(msg_len, 6); ++i) {
 		uint32_t chunk[16];
 
 		for (j = 0; j < 16; ++j) {
@@ -281,10 +281,10 @@ void ripemd160(const uint8_t *msg, uint32_t msg_len, uint8_t *hash)
 		uint32_t chunk[16] = {0};
 
 		for (i = 0; i < (msg_len & 63); ++i) {
-			chunk[i >> 2] ^= LSHIFT((uint32_t) *msg++, LSHIFT((i&3), 3));
+			chunk[RSHIFT(i, 2)] ^= LSHIFT((uint32_t) *msg++, LSHIFT((i&3), 3));
 		}
 
-		chunk[(msg_len >> 2)&15] ^= LSHIFT((uint32_t)1, (8*(msg_len&3) + 7));
+		chunk[RSHIFT(msg_len, 2)&15] ^= LSHIFT((uint32_t)1, (8*(msg_len&3) + 7));
 
 		if ((msg_len & 63) > 55) {
 			compress (digest, chunk);
@@ -292,14 +292,14 @@ void ripemd160(const uint8_t *msg, uint32_t msg_len, uint8_t *hash)
 		}
 
 		chunk[14] = LSHIFT(msg_len, 3);
-		chunk[15] = (msg_len >> 29);
+		chunk[15] = RSHIFT(msg_len, 29);
 		compress (digest, chunk);
 	}
 
 	for (i = 0; i < 5; ++i) {
 		*(hash++) = digest[i];
-		*(hash++) = digest[i] >> 8;
-		*(hash++) = digest[i] >> 16;
-		*(hash++) = digest[i] >> 24;
+		*(hash++) = RSHIFT(digest[i], 8);
+		*(hash++) = RSHIFT(digest[i], 16);
+		*(hash++) = RSHIFT(digest[i], 24);
 	}
 }

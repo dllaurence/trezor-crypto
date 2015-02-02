@@ -54,7 +54,7 @@ char *tohex(const uint8_t *bin, size_t l)
 	static char digits[] = "0123456789abcdef";
 	size_t i;
 	for (i = 0; i < l; i++) {
-		buf[i*2  ] = digits[(bin[i] >> 4) & 0xF];
+		buf[i*2  ] = digits[RSHIFT(bin[i], 4) & 0xF];
 		buf[i*2+1] = digits[bin[i] & 0xF];
 	}
 	buf[l * 2] = 0;

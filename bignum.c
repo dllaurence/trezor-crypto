@@ -40,9 +40,9 @@
 
 inline void write_be(uint8_t *data, uint32_t x)
 {
-	data[0] = x >> 24;
-	data[1] = x >> 16;
-	data[2] = x >> 8;
+	data[0] = RSHIFT(x, 24);
+	data[1] = RSHIFT(x, 16);
+	data[2] = RSHIFT(x, 8);
 	data[3] = x;
 }
 
@@ -87,9 +87,10 @@ if (i == 2) {
 //gem_log_more(gem_log_notify, "  out_number: %016x\n", out_number->val[i]);
 //gem_log_more(gem_log_notify, "sizeof(temp): %u\n", sizeof(temp));
 //gem_log_more(gem_log_notify, "  UINT64_MAX: %llx\n", UINT64_MAX);
-gem_log_more(gem_log_notify, "          >>: %016llx\n", temp >> 30);
+gem_log_more(gem_log_notify, "        RSHIFT: %016llx\n", RSHIFT(temp, 30));
 }
-		temp >>= 30;
+		//temp RSHIFTEQ 30;
+		temp = RSHIFT(temp, 30);
 //if (i == 2) {
 //gem_log_more(gem_log_notify, "    temp shf: %016llx\n", temp);
 //}
@@ -114,8 +115,8 @@ gem_log_more(gem_log_notify, "    temp: %016llx\n", temp);
 
 		temp |= in_number->val[7 - i];
 gem_log_more(gem_log_notify, "    temp: %016llx\n", temp);
-		//write_be(out_number + i * 4, temp >> shift);
-//uint8_t temp2 = temp >> shift;
+		//write_be(out_number + i * 4, RSHIFT(temp, shift));
+//uint8_t temp2 = RSHIFT(temp, shift);
 uint8_t temp2 = RSHIFT(temp, shift);
 gem_log_more(gem_log_notify, "    temp2: %016llx\n", temp2);
 write_be(out_number + i * 4, temp2);
@@ -172,7 +173,7 @@ void bn_lshift(bignum256 *a)
 {
 	int i;
 	for (i = 8; i > 0; i--) {
-		a->val[i] = (LSHIFT(a->val[i], 1) & 0x3FFFFFFF) | ((a->val[i - 1] & 0x20000000) >> 29);
+		a->val[i] = (LSHIFT(a->val[i], 1) & 0x3FFFFFFF) | RSHIFT((a->val[i - 1] & 0x20000000), 29);
 	}
 	a->val[0] = LSHIFT(a->val[0], 1) & 0x3FFFFFFF;
 }
@@ -181,9 +182,9 @@ void bn_rshift(bignum256 *a)
 {
 	int i;
 	for (i = 0; i < 8; i++) {
-		a->val[i] = (a->val[i] >> 1) | LSHIFT((a->val[i + 1] & 1), 29);
+		a->val[i] = RSHIFT(a->val[i], 1) | LSHIFT((a->val[i + 1] & 1), 29);
 	}
-	a->val[8] >>= 1;
+	a->val[8] = RSHIFT(a->val[8], 1);
 }
 
 // assumes x < 2*prime, result < prime
@@ -205,7 +206,8 @@ void bn_mod(bignum256 *x, const bignum256 *prime)
 			for (i = 0; i < 9; i++) {
 				temp += x->val[i] - prime->val[i];
 				x->val[i] = temp & 0x3FFFFFFF;
-				temp >>= 30;
+				//temp RSHIFTEQ 30;
+				temp = RSHIFT(temp, 30);
 				temp += 0x3FFFFFFFu;
 			}
 		}
@@ -218,7 +220,8 @@ void bn_addi(bignum256 *a, uint32_t b)
 	uint64_t t = a->val[0];
 	t += b;
 	a->val[0] = t & 0x3FFFFFFFu;
-	t >>= 30;
+	//t RSHIFTEQ 30;
+	t = RSHIFT(t, 30);
 	a->val[1] += t;
 }
 
@@ -230,7 +233,8 @@ void bn_muli(bignum256 *a, uint32_t b)
 	for (i = 0; i < 8; i++) {
 		t = (uint64_t)(a->val[i]) * b + t;
 		a->val[i] = t & 0x3FFFFFFFu;
-		t >>= 30;
+		//t RSHIFTEQ 30;
+		t = RSHIFT(t, 30);
 	}
 	a->val[8] += t;
 }
@@ -250,7 +254,8 @@ void bn_multiply(const bignum256 *k, bignum256 *x, const bignum256 *prime)
 			temp += k->val[j] * (uint64_t)x->val[i - j];
 		}
 		res[i] = temp & 0x3FFFFFFFu;
-		temp >>= 30;
+		//temp RSHIFTEQ 30;
+		temp = RSHIFT(temp, 30);
 	}
 	// compute upper half
 	for (; i < 17; i++)
@@ -259,18 +264,20 @@ void bn_multiply(const bignum256 *k, bignum256 *x, const bignum256 *prime)
 			temp += k->val[j] * (uint64_t)x->val[i - j];
 		}
 		res[i] = temp & 0x3FFFFFFFu;
-		temp >>= 30;
+		//temp RSHIFTEQ 30;
+		temp = RSHIFT(temp, 30);
 	}
 	res[17] = temp;
 	// compute modulo p division is only estimated so this may give result greater than prime but not bigger than 2 * prime
 	for (i = 16; i >= 8; i--) {
 		// estimate (res / prime)
-		coef = (res[i] >> 16) + LSHIFT(res[i + 1], 14);
+		coef = RSHIFT(res[i], 16) + LSHIFT(res[i + 1], 14);
 		// substract (coef * prime) from res
 		temp = 0x1000000000000000ull + res[i - 8] - prime->val[0] * (uint64_t)coef;
 		res[i - 8] = temp & 0x3FFFFFFF;
 		for (j = 1; j < 9; j++) {
-			temp >>= 30;
+			//temp RSHIFTEQ 30;
+			temp = RSHIFT(temp, 30);
 			temp += 0xFFFFFFFC0000000ull + res[i - 8 + j] - prime->val[j] * (uint64_t)coef;
 			res[i - 8 + j] = temp & 0x3FFFFFFF;
 		}
@@ -288,13 +295,14 @@ void bn_fast_mod(bignum256 *x, const bignum256 *prime)
 	uint32_t coef;
 	uint64_t temp;
 
-	coef = x->val[8] >> 16;
+	coef = RSHIFT(x->val[8], 16);
 	if (!coef) return;
 	// substract (coef * prime) from x
 	temp = 0x1000000000000000ull + x->val[0] - prime->val[0] * (uint64_t)coef;
 	x->val[0] = temp & 0x3FFFFFFF;
 	for (j = 1; j < 9; j++) {
-		temp >>= 30;
+		//temp RSHIFTEQ 30;
+		temp = RSHIFT(temp, 30);
 		temp += 0xFFFFFFFC0000000ull + x->val[j] - prime->val[j] * (uint64_t)coef;
 		x->val[j] = temp & 0x3FFFFFFF;
 	}
@@ -318,7 +326,8 @@ void bn_sqrt(bignum256 *x, const bignum256 *prime)
 			if (limb & 1) {
 				bn_multiply(x, &res, prime);
 			}
-			limb >>= 1;
+			//limb RSHIFTEQ 1;
+			limb = RSHIFT(limb, 1);
 			bn_multiply(x, x, prime);
 		}
 	}
@@ -347,7 +356,8 @@ void bn_inverse(bignum256 *x, const bignum256 *prime)
 			if (limb & 1) {
 				bn_multiply(x, &res, prime);
 			}
-			limb >>= 1;
+			//limb RSHIFTEQ 1;
+			limb = RSHIFT(limb, 1);
 			bn_multiply(x, x, prime);
 		}
 	}
@@ -391,13 +401,13 @@ void bn_inverse(bignum256 *x, const bignum256 *prime)
 			if (i == 0) break;
 			mask = LSHIFT(1, i) - 1;
 			for (j = 0; j + 1 < len1; j++) {
-				u[j] = (u[j] >> i) | LSHIFT((u[j + 1] & mask), (32 - i));
+				u[j] = RSHIFT(u[j], i) | LSHIFT((u[j + 1] & mask), (32 - i));
 			}
-			u[j] = (u[j] >> i);
+			u[j] = RSHIFT(u[j], i);
 			mask = LSHIFT(1, (32 - i)) - 1;
-			s[len2] = s[len2 - 1] >> (32 - i);
+			s[len2] = RSHIFT(s[len2 - 1], (32 - i));
 			for (j = len2 - 1; j > 0; j--) {
-				s[j] = (s[j - 1] >> (32 - i)) | LSHIFT((s[j] & mask), i);
+				s[j] = RSHIFT(s[j - 1], (32 - i)) | LSHIFT((s[j] & mask), i);
 			}
 			s[0] = LSHIFT((s[0] & mask), i);
 			if (s[len2]) {
@@ -413,13 +423,13 @@ void bn_inverse(bignum256 *x, const bignum256 *prime)
 			if (i == 0) break;
 			mask = LSHIFT(1, i) - 1;
 			for (j = 0; j + 1 < len1; j++) {
-				v[j] = (v[j] >> i) | LSHIFT((v[j + 1] & mask), (32 - i));
+				v[j] = RSHIFT(v[j], i) | LSHIFT((v[j + 1] & mask), (32 - i));
 			}
-			v[j] = (v[j] >> i);
+			v[j] = RSHIFT(v[j], i);
 			mask = LSHIFT(1, (32 - i)) - 1;
-			r[len2] = r[len2 - 1] >> (32 - i);
+			r[len2] = RSHIFT(r[len2 - 1], (32 - i));
 			for (j = len2 - 1; j > 0; j--) {
-				r[j] = (r[j - 1] >> (32 - i)) | LSHIFT((r[j] & mask), i);
+				r[j] = RSHIFT(r[j - 1], (32 - i)) | LSHIFT((r[j] & mask), i);
 			}
 			r[0] = LSHIFT((r[0] & mask), i);
 			if (r[len2]) {
@@ -433,13 +443,15 @@ void bn_inverse(bignum256 *x, const bignum256 *prime)
 		while (i > 0 && u[i] == v[i]) i--;
 		if (u[i] > v[i]) {
 			temp = 0x100000000ull + u[0] - v[0];
-			u[0] = (temp >> 1) & 0x7FFFFFFF;
-			temp >>= 32;
+			u[0] = RSHIFT(temp, 1) & 0x7FFFFFFF;
+			//temp RSHIFTEQ 32;
+			temp = RSHIFT(temp, 32);
 			for (i = 1; i < len1; i++) {
 				temp += 0xFFFFFFFFull + u[i] - v[i];
 				u[i - 1] += LSHIFT((temp & 1), 31);
-				u[i] = (temp >> 1) & 0x7FFFFFFF;
-				temp >>= 32;
+				u[i] = RSHIFT(temp, 1) & 0x7FFFFFFF;
+				//temp RSHIFTEQ 32;
+				temp = RSHIFT(temp, 32);
 			}
 			temp = temp2 = 0;
 			for (i = 0; i < len2; i++) {
@@ -449,8 +461,10 @@ void bn_inverse(bignum256 *x, const bignum256 *prime)
 				temp2 += s[i];
 				r[i] = temp;
 				s[i] = temp2;
-				temp >>= 32;
-				temp2 >>= 32;
+				//temp RSHIFTEQ 32;
+				temp = RSHIFT(temp, 32);
+				//temp2 RSHIFTEQ 32;
+				temp2 = RSHIFT(temp2, 32);
 			}
 			if (temp != 0 || temp2 != 0) {
 				r[len2] = temp;
@@ -459,13 +473,15 @@ void bn_inverse(bignum256 *x, const bignum256 *prime)
 			}
 		} else {
 			temp = 0x100000000ull + v[0] - u[0];
-			v[0] = (temp >> 1) & 0x7FFFFFFF;
-			temp >>= 32;
+			v[0] = RSHIFT(temp, 1) & 0x7FFFFFFF;
+			//temp RSHIFTEQ 32;
+			temp = RSHIFT(temp, 32);
 			for (i = 1; i < len1; i++) {
 				temp += 0xFFFFFFFFull + v[i] - u[i];
 				v[i - 1] += LSHIFT((temp & 1), 31);
-				v[i] = (temp >> 1) & 0x7FFFFFFF;
-				temp >>= 32;
+				v[i] = RSHIFT(temp, 1) & 0x7FFFFFFF;
+				//temp RSHIFTEQ 32;
+				temp = RSHIFT(temp, 32);
 			}
 			temp = temp2 = 0;
 			for (i = 0; i < len2; i++) {
@@ -475,8 +491,10 @@ void bn_inverse(bignum256 *x, const bignum256 *prime)
 				temp2 += r[i];
 				s[i] = temp;
 				r[i] = temp2;
-				temp >>= 32;
-				temp2 >>= 32;
+				//temp RSHIFTEQ 32;
+				temp = RSHIFT(temp, 32);
+				//temp2 RSHIFTEQ 32;
+				temp2 = RSHIFT(temp2, 32);
 			}
 			if (temp != 0 || temp2 != 0) {
 				s[len2] = temp;
@@ -488,10 +506,10 @@ void bn_inverse(bignum256 *x, const bignum256 *prime)
 		k++;
 	}
 
-	j = r[0] >> 30;
+	j = RSHIFT(r[0], 30);
 	r[0] = r[0] & 0x3FFFFFFFu;
 	for (i = 1; i < len2; i++) {
-		uint32_t q = r[i] >> (30 - 2 * i);
+		uint32_t q = RSHIFT(r[i], (30 - 2 * i));
 		r[i] = (LSHIFT(r[i], (2 * i)) & 0x3FFFFFFFu) + j;
 		j=q;
 	}
@@ -506,14 +524,16 @@ void bn_inverse(bignum256 *x, const bignum256 *prime)
 		for (i = 0; i < 9; i++) {
 			temp32 += 0x3FFFFFFF + r[i] - prime->val[i];
 			r[i] = temp32 & 0x3FFFFFFF;
-			temp32 >>= 30;
+			//temp32 RSHIFTEQ 30;
+			temp32 = RSHIFT(temp32, 30);
 		}
 	}
 	temp32 = 1;
 	for (i = 0; i < 9; i++) {
 		temp32 += 0x3FFFFFFF + prime->val[i] - r[i];
 		r[i] = temp32 & 0x3FFFFFFF;
-		temp32 >>= 30;
+		//temp32 RSHIFTEQ 30;
+		temp32 = RSHIFT(temp32, 30);
 	}
 	int done = 0;
 #if USE_PRECOMPUTED_IV
@@ -530,19 +550,21 @@ void bn_inverse(bignum256 *x, const bignum256 *prime)
 		for (j = 0; j < k; j++) {
 			if (r[0] & 1) {
 				temp32 = r[0] + prime->val[0];
-				r[0] = (temp32 >> 1) & 0x1FFFFFFF;
-				temp32 >>= 30;
+				r[0] = RSHIFT(temp32, 1) & 0x1FFFFFFF;
+				//temp32 RSHIFTEQ 30;
+				temp32 = RSHIFT(temp32, 30);
 				for (i = 1; i < 9; i++) {
 					temp32 += r[i] + prime->val[i];
 					r[i - 1] += LSHIFT((temp32 & 1), 29);
-					r[i] = (temp32 >> 1) & 0x1FFFFFFF;
-					temp32 >>= 30;
+					r[i] = RSHIFT(temp32, 1) & 0x1FFFFFFF;
+					//temp32 RSHIFTEQ 30;
+					temp32 = RSHIFT(temp32, 30);
 				}
 			} else {
 				for (i = 0; i < 8; i++) {
-					r[i] = (r[i] >> 1) | LSHIFT((r[i + 1] & 1), 29);
+					r[i] = RSHIFT(r[i], 1) | LSHIFT((r[i + 1] & 1), 29);
 				}
-				r[8] = r[8] >> 1;
+				r[8] = RSHIFT(r[8], 1);
 			}
 		}
 		for (j = 0; j < 9; j++) {
@@ -558,7 +580,8 @@ void bn_normalize(bignum256 *a) {
 	for (i = 0; i < 9; i++) {
 		tmp += a->val[i];
 		a->val[i] = tmp & 0x3FFFFFFF;
-		tmp >>= 30;
+		//tmp RSHIFTEQ 30;
+		tmp = RSHIFT(tmp, 30);
 	}
 }
 
@@ -589,7 +612,8 @@ void bn_substract(const bignum256 *a, const bignum256 *b, bignum256 *res)
 	for (i = 0; i < 9; i++) {
 		temp += a->val[i] + 2u * prime256k1.val[i] - b->val[i];
 		res->val[i] = temp & 0x3FFFFFFF;
-		temp >>= 30;
+		//temp RSHIFTEQ 30;
+		temp = RSHIFT(temp, 30);
 	}
 }
 
@@ -601,7 +625,8 @@ void bn_substract_noprime(const bignum256 *a, const bignum256 *b, bignum256 *res
 	for (i = 0; i < 9; i++) {
 		tmp += 0x3FFFFFFF + a->val[i] - b->val[i];
 		res->val[i] = tmp & 0x3FFFFFFF;
-		tmp >>= 30;
+		//tmp RSHIFTEQ 30;
+		tmp = RSHIFT(tmp, 30);
 	}
 }
 
@@ -625,13 +650,13 @@ void bn_divmod58(bignum256 *a, uint32_t *r)
 void bn_print(const bignum256 *a)
 {
 	printf("%04x", a->val[8] & 0x0000FFFF);
-	printf("%08x", LSHIFT(a->val[7], 2) | ((a->val[6] & 0x30000000) >> 28));
+	printf("%08x", LSHIFT(a->val[7], 2) | RSHIFT((a->val[6] & 0x30000000), 28));
 	printf("%07x", a->val[6] & 0x0FFFFFFF);
-	printf("%08x", LSHIFT(a->val[5], 2) | ((a->val[4] & 0x30000000) >> 28));
+	printf("%08x", LSHIFT(a->val[5], 2) | RSHIFT((a->val[4] & 0x30000000), 28));
 	printf("%07x", a->val[4] & 0x0FFFFFFF);
-	printf("%08x", LSHIFT(a->val[3], 2) | ((a->val[2] & 0x30000000) >> 28));
+	printf("%08x", LSHIFT(a->val[3], 2) | RSHIFT((a->val[2] & 0x30000000), 28));
 	printf("%07x", a->val[2] & 0x0FFFFFFF);
-	printf("%08x", LSHIFT(a->val[1], 2) | ((a->val[0] & 0x30000000) >> 28));
+	printf("%08x", LSHIFT(a->val[1], 2) | RSHIFT((a->val[0] & 0x30000000), 28));
 	printf("%07x", a->val[0] & 0x0FFFFFFF);
 }
 

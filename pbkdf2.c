@@ -25,6 +25,9 @@
 #include "pbkdf2.h"
 #include "hmac.h"
 
+// DEBUGPPC
+#include "compilerfix.h"
+
 #define HMACFUNC hmac_sha512
 #define HMACLEN  (512/8)
 
@@ -37,9 +40,9 @@ void pbkdf2(const uint8_t *pass, int passlen, uint8_t *salt, int saltlen, uint32
 		blocks++;
 	}
 	for (i = 1; i <= blocks; i++) {
-		salt[saltlen    ] = (i >> 24) & 0xFF;
-		salt[saltlen + 1] = (i >> 16) & 0xFF;
-		salt[saltlen + 2] = (i >> 8) & 0xFF;
+		salt[saltlen    ] = RSHIFT(i, 24) & 0xFF;
+		salt[saltlen + 1] = RSHIFT(i, 16) & 0xFF;
+		salt[saltlen + 2] = RSHIFT(i, 8) & 0xFF;
 		salt[saltlen + 3] = i & 0xFF;
 		HMACFUNC(pass, passlen, salt, saltlen + 4, g);
 		memcpy(f, g, HMACLEN);

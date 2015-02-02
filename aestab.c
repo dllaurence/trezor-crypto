@@ -155,10 +155,10 @@ Issue Date: 20/12/2007
 
 #if defined(FIXED_TABLES) || !defined(FF_TABLES)
 
-#define f2(x)   (LSHIFT(x,1) ^ (((x>>7) & 1) * WPOLY))
-#define f4(x)   (LSHIFT(x,2) ^ (((x>>6) & 1) * WPOLY) ^ (((x>>6) & 2) * WPOLY))
-#define f8(x)   (LSHIFT(x,3) ^ (((x>>5) & 1) * WPOLY) ^ (((x>>5) & 2) * WPOLY) \
-                        ^ (((x>>5) & 4) * WPOLY))
+#define f2(x)   (LSHIFT(x,1) ^ ((RSHIFT(x,7) & 1) * WPOLY))
+#define f4(x)   (LSHIFT(x,2) ^ ((RSHIFT(x,6) & 1) * WPOLY) ^ ((RSHIFT(x,6) & 2) * WPOLY))
+#define f8(x)   (LSHIFT(x,3) ^ ((RSHIFT(x,5) & 1) * WPOLY) ^ ((RSHIFT(x,5) & 2) * WPOLY) \
+                        ^ ((RSHIFT(x,5) & 4) * WPOLY))
 #define f3(x)   (f2(x) ^ x)
 #define f9(x)   (f8(x) ^ x)
 #define fb(x)   (f8(x) ^ f2(x) ^ x)
@@ -212,11 +212,11 @@ AES_RETURN aes_init(void)
 */
 
 static uint8_t hibit(const uint32_t x)
-{   uint8_t r = (uint8_t)((x >> 1) | (x >> 2));
+{   uint8_t r = (uint8_t)(RSHIFT(x, 1) | RSHIFT(x, 2));
 
-    r |= (r >> 2);
-    r |= (r >> 4);
-    return (r + 1) >> 1;
+    r |= RSHIFT(r, 2);
+    r |= RSHIFT(r, 4);
+    return RSHIFT((r + 1), 1);
 }
 
 /* return the inverse of the finite field element x */
@@ -259,13 +259,13 @@ static uint8_t gf_inv(const uint8_t x)
 uint8_t fwd_affine(const uint8_t x)
 {   uint32_t w = x;
     w ^= LSHIFT(w, 1) ^ LSHIFT(w, 2) ^ LSHIFT(w, 3) ^ LSHIFT(w, 4);
-    return 0x63 ^ ((w ^ (w >> 8)) & 0xff);
+    return 0x63 ^ ((w ^ RSHIFT(w, 8)) & 0xff);
 }
 
 uint8_t inv_affine(const uint8_t x)
 {   uint32_t w = x;
     w = LSHIFT(w, 1) ^ LSHIFT(w, 3) ^ LSHIFT(w, 6);
-    return 0x05 ^ ((w ^ (w >> 8)) & 0xff);
+    return 0x05 ^ ((w ^ RSHIFT(w, 8)) & 0xff);
 }
 
 static int init = 0;

@@ -136,7 +136,7 @@ AES_RETURN aes_xi(encrypt)(const unsigned char *in, unsigned char *out, const ae
 
 #if (ENC_UNROLL == PARTIAL)
     {   uint32_t    rnd;
-        for(rnd = 0; rnd < (cx->inf.b[0] >> 5) - 1; ++rnd)
+        for(rnd = 0; rnd < RSHIFT(cx->inf.b[0], 5) - 1; ++rnd)
         {
             kp += N_COLS;
             round(fwd_rnd, b1, b0, kp);
@@ -147,7 +147,7 @@ AES_RETURN aes_xi(encrypt)(const unsigned char *in, unsigned char *out, const ae
         round(fwd_rnd,  b1, b0, kp);
 #else
     {   uint32_t    rnd;
-        for(rnd = 0; rnd < (cx->inf.b[0] >> 4) - 1; ++rnd)
+        for(rnd = 0; rnd < RSHIFT(cx->inf.b[0], 4) - 1; ++rnd)
         {
             kp += N_COLS;
             round(fwd_rnd, b1, b0, kp);
@@ -236,12 +236,12 @@ AES_RETURN aes_xi(decrypt)(const unsigned char *in, unsigned char *out, const ae
 	if(cx->inf.b[0] != 10 * 16 && cx->inf.b[0] != 12 * 16 && cx->inf.b[0] != 14 * 16)
 		return EXIT_FAILURE;
 
-    kp = cx->ks + (key_ofs ? (cx->inf.b[0] >> 2) : 0);
+    kp = cx->ks + (key_ofs ? RSHIFT(cx->inf.b[0], 2) : 0);
     state_in(b0, in, kp);
 
 #if (DEC_UNROLL == FULL)
 
-    kp = cx->ks + (key_ofs ? 0 : (cx->inf.b[0] >> 2));
+    kp = cx->ks + (key_ofs ? 0 : RSHIFT(cx->inf.b[0], 2));
     switch(cx->inf.b[0])
     {
     case 14 * 16:
@@ -267,7 +267,7 @@ AES_RETURN aes_xi(decrypt)(const unsigned char *in, unsigned char *out, const ae
 
 #if (DEC_UNROLL == PARTIAL)
     {   uint32_t    rnd;
-        for(rnd = 0; rnd < (cx->inf.b[0] >> 5) - 1; ++rnd)
+        for(rnd = 0; rnd < RSHIFT(cx->inf.b[0], 5) - 1; ++rnd)
         {
             kp = rnd_key(1);
             round(inv_rnd, b1, b0, kp);
@@ -278,7 +278,7 @@ AES_RETURN aes_xi(decrypt)(const unsigned char *in, unsigned char *out, const ae
         round(inv_rnd, b1, b0, kp);
 #else
     {   uint32_t    rnd;
-        for(rnd = 0; rnd < (cx->inf.b[0] >> 4) - 1; ++rnd)
+        for(rnd = 0; rnd < RSHIFT(cx->inf.b[0], 4) - 1; ++rnd)
         {
             kp = rnd_key(1);
             round(inv_rnd, b1, b0, kp);

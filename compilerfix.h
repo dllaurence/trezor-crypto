@@ -60,6 +60,9 @@
 })
 
 
+// FIXME: re-write these to expand to an if (not #if, which doesn't work)
+// on the sizeof the argument so only 64-bit shifts get slowed down
+
 // Alternative implementation with function + macro--note that a
 // pure functional implementation doesn't work.
 #define LSHIFT_FUNCTION(x, i) (lshift_base(x, i, sizeof(x)))

@@ -553,7 +553,7 @@ Issue Date: 20/12/2007
 #elif defined( bswap_32 )
 #  define aes_sw32    bswap_32
 #else
-#  define brot(x,n)   (LSHIFT((uint32_t)(x),  n) | ((uint32_t)(x) >> (32 - n)))
+#  define brot(x,n)   (LSHIFT((uint32_t)(x),  n) | RSHIFT((uint32_t)(x), (32 - n)))
 #  define aes_sw32(x) ((brot((x),8) & 0x00ff00ff) | (brot((x),24) & 0xff00ff00))
 #endif
 
@@ -569,17 +569,17 @@ Issue Date: 20/12/2007
 */
 
 #if ( ALGORITHM_BYTE_ORDER == IS_LITTLE_ENDIAN )
-#  define upr(x,n)      (LSHIFT((uint32_t)(x), (8 * (n))) | ((uint32_t)(x) >> (32 - 8 * (n))))
+#  define upr(x,n)      (LSHIFT((uint32_t)(x), (8 * (n))) | RSHIFT((uint32_t)(x), (32 - 8 * (n))))
 #  define ups(x,n)      LSHIFT((uint32_t) (x), (8 * (n)))
-#  define bval(x,n)     to_byte((x) >> (8 * (n)))
+#  define bval(x,n)     to_byte(RSHIFT((x), (8 * (n))))
 #  define bytes2word(b0, b1, b2, b3)  \
         (LSHIFT((uint32_t)(b3), 24) | LSHIFT((uint32_t)(b2), 16) | LSHIFT((uint32_t)(b1), 8) | (b0))
 #endif
 
 #if ( ALGORITHM_BYTE_ORDER == IS_BIG_ENDIAN )
-#  define upr(x,n)      (((uint32_t)(x) >> (8 * (n))) | LSHIFT((uint32_t)(x), (32 - 8 * (n))))
-#  define ups(x,n)      ((uint32_t) (x) >> (8 * (n)))
-#  define bval(x,n)     to_byte((x) >> (24 - 8 * (n)))
+#  define upr(x,n)      (RSHIFT((uint32_t)(x), (8 * (n))) | LSHIFT((uint32_t)(x), (32 - 8 * (n))))
+#  define ups(x,n)      RSHIFT((uint32_t) (x), (8 * (n)))
+#  define bval(x,n)     to_byte(RSHIFT((x), (24 - 8 * (n))))
 #  define bytes2word(b0, b1, b2, b3)  \
         (LSHIFT((uint32_t)(b0), 24) | LSHIFT((uint32_t)(b1), 16) | LSHIFT((uint32_t)(b2), 8) | (b3))
 #endif
@@ -606,15 +606,15 @@ Issue Date: 20/12/2007
 
 #define gf_c1  0x80808080
 #define gf_c2  0x7f7f7f7f
-#define gf_mulx(x)  (LSHIFT(((x) & gf_c2), 1) ^ ((((x) & gf_c1) >> 7) * BPOLY))
+#define gf_mulx(x)  (LSHIFT(((x) & gf_c2), 1) ^ (RSHIFT(((x) & gf_c1), 7) * BPOLY))
 
 /* The following defines provide alternative definitions of gf_mulx that might
    give improved performance if a fast 32-bit multiply is not available. Note
    that a temporary variable u needs to be defined where gf_mulx is used.
 
-#define gf_mulx(x) LSHIFT(u = (x) & gf_c1, u |= (u >> 1), ((x) & gf_c2), 1) ^ ((u >> 3) | (u >> 6))
+#define gf_mulx(x) LSHIFT(u = (x) & gf_c1, u |= RSHIFT(u, 1), ((x) & gf_c2), 1) ^ (RSHIFT(u, 3) | RSHIFT(u, 6))
 #define gf_c4  (0x01010101 * BPOLY)
-#define gf_mulx(x) LSHIFT(u = (x) & gf_c1, ((x) & gf_c2), 1) ^ ((u - (u >> 7)) & gf_c4)
+#define gf_mulx(x) LSHIFT(u = (x) & gf_c1, ((x) & gf_c2), 1) ^ ((u - RSHIFT(u, 7)) & gf_c4)
 */
 
 /* Work out which tables are needed for the different options   */
