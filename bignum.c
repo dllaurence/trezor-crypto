@@ -117,7 +117,7 @@ gem_log_more(gem_log_notify, "    temp: %016llx\n", temp);
 gem_log_more(gem_log_notify, "    temp: %016llx\n", temp);
 		//write_be(out_number + i * 4, RSHIFT(temp, shift));
 //uint8_t temp2 = RSHIFT(temp, shift);
-uint8_t temp2 = RSHIFT(temp, shift);
+uint64_t temp2 = RSHIFT(temp, shift);
 gem_log_more(gem_log_notify, "    temp2: %016llx\n", temp2);
 write_be(out_number + i * 4, temp2);
 		shift -= 2;
