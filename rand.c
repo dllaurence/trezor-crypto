@@ -45,13 +45,13 @@ uint32_t random32(void)
 {
 	uint32_t r;
 	size_t len = sizeof(r);
-	size_t len_read = fread(&r, 1, len, f);
+	size_t len_read __attribute__((unused)) = fread(&r, 1, len, f);
 	assert(len_read == len);
 	return r;
 }
 
 void random_buffer(uint8_t *buf, size_t len)
 {
-	size_t len_read = fread(buf, 1, len, f);
+	size_t len_read __attribute__((unused)) = fread(buf, 1, len, f);
 	assert(len_read == len);
 }
